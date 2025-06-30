@@ -11,16 +11,85 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
 import { toast } from "sonner";
+
+interface Guild {
+  id: string;
+  name: string;
+}
+
+interface Relationship {
+  id: string;
+  type: number;
+  user: {
+    id: string;
+    username: string;
+    discriminator: string;
+  };
+}
 
 export default function Page() {
   const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userGuilds, setUserGuilds] = useState([]);
-  const [userFriends, setUserFriends] = useState([]);
+  const [userGuilds, setUserGuilds] = useState<Guild[]>([]);
+  const [userFriends, setUserFriends] = useState<Relationship[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogout = useCallback(() => {
+    document.cookie =
+      "discord_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    setIsAuthenticated(false);
+    setUserGuilds([]);
+    setUserFriends([]);
+    setToken("");
+  }, []);
+
+  const fetchUserData = useCallback(
+    async (userToken: string) => {
+      try {
+        // Fetch user's guilds
+        const guildsResponse = await fetch(
+          "https://discord.com/api/users/@me/guilds",
+          {
+            headers: {
+              Authorization: userToken,
+            },
+          }
+        );
+        if (guildsResponse.status === 401) {
+          toast.error("Invalid token. You'll have to log in again.");
+          handleLogout();
+        }
+        if (guildsResponse.ok) {
+          const guilds = await guildsResponse.json();
+          setUserGuilds(guilds);
+        } else throw new Error("Failed to fetch user guilds");
+
+        // Fetch user's friends (relationships)
+        const friendsResponse = await fetch(
+          "https://discord.com/api/users/@me/relationships",
+          {
+            headers: {
+              Authorization: userToken,
+            },
+          }
+        );
+
+        if (friendsResponse.ok) {
+          const relationships = await friendsResponse.json();
+          const friends = relationships.filter(
+            (rel: Relationship) => rel.type === 1
+          ); // Type 1 = friends
+          setUserFriends(friends);
+        } else throw new Error("Failed to fetch user friends");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    },
+    [handleLogout]
+  );
 
   // Load token from cookies on component mount
   useEffect(() => {
@@ -30,47 +99,7 @@ export default function Page() {
       setIsAuthenticated(true);
       fetchUserData(savedToken as string);
     }
-  }, []);
-
-  const fetchUserData = async (userToken: string) => {
-    try {
-      // Fetch user's guilds
-      const guildsResponse = await fetch(
-        "https://discord.com/api/users/@me/guilds",
-        {
-          headers: {
-            Authorization: userToken,
-          },
-        }
-      );
-      if (guildsResponse.ok) {
-        const guilds = await guildsResponse.json();
-        setUserGuilds(guilds);
-      }
-
-      // Fetch user's friends (relationships)
-      const friendsResponse = await fetch(
-        "https://discord.com/api/users/@me/relationships",
-        {
-          headers: {
-            Authorization: userToken,
-          },
-        }
-      );
-
-      if (friendsResponse.ok) {
-        const relationships = await friendsResponse.json();
-        const friends = relationships.filter((rel: any) => rel.type === 1); // Type 1 = friends
-        setUserFriends(friends);
-      }
-      if (friendsResponse.status === 401) {
-        toast.error("Invalid token. You'll have to log in again.");
-        handleLogout();
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+  }, [fetchUserData]);
 
   const handleTokenSave = async () => {
     if (!token.trim()) {
@@ -100,6 +129,7 @@ export default function Page() {
         toast.error("Invalid token. Please check your Discord token.");
       }
     } catch (error) {
+      console.error("Error verifying token:", error);
       toast.error("Error verifying token. Please try again.");
     } finally {
       setIsLoading(false);
@@ -125,6 +155,7 @@ export default function Page() {
         toast.error("Failed to leave server.");
       }
     } catch (error) {
+      console.error("Error leaving server:", error);
       toast.error("Error leaving server.");
     }
   };
@@ -148,17 +179,9 @@ export default function Page() {
         toast.error("Failed to remove friend.");
       }
     } catch (error) {
+      console.error("Error removing friend:", error);
       toast.error("Error removing friend.");
     }
-  };
-
-  const handleLogout = () => {
-    document.cookie =
-      "discord_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setIsAuthenticated(false);
-    setUserGuilds([]);
-    setUserFriends([]);
-    setToken("");
   };
 
   const defaultTab = isAuthenticated ? "servers" : "auth";
@@ -200,7 +223,7 @@ export default function Page() {
                     />
                     <div className="text-xs text-gray-600 bg-yellow-50 p-3 rounded">
                       <strong>Security Note:</strong> Your token is stored only
-                      in your browser's cookies and is never sent to our
+                      in your browser&apos;s cookies and is never sent to our
                       servers. All Discord API calls happen directly from your
                       browser to Discord.
                     </div>
@@ -232,7 +255,7 @@ export default function Page() {
               <CardContent>
                 {userGuilds.length > 0 ? (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {userGuilds.map((guild: any) => (
+                    {userGuilds.map((guild: Guild) => (
                       <div
                         key={guild.id}
                         className="flex items-center justify-between p-3 border rounded"
@@ -275,7 +298,7 @@ export default function Page() {
               <CardContent>
                 {userFriends.length > 0 ? (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {userFriends.map((friend: any) => (
+                    {userFriends.map((friend: Relationship) => (
                       <div
                         key={friend.user.id}
                         className="flex items-center justify-between p-3 border rounded"
