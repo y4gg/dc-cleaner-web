@@ -1,15 +1,8 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FriendTab } from "@/components/friend-tab";
+import { ServerTab } from "@/components/server-tab";
+import { AuthTab } from "@/components/auth-tab";
+import { DmTab } from "../components/dm-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
@@ -30,12 +23,49 @@ interface Relationship {
   };
 }
 
+interface Channel {
+  id: string;
+  type: number;
+  recipients: Recipient[];
+}
+
+interface Recipient {
+  id: string;
+  username: string;
+  discriminator: string;
+}
+
 export default function Page() {
   const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userGuilds, setUserGuilds] = useState<Guild[]>([]);
   const [userFriends, setUserFriends] = useState<Relationship[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userDms, setUserDms] = useState<Channel[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{
+    servers: string[];
+    friends: string[];
+    dms: string[];
+  }>({
+    servers: [],
+    friends: [],
+    dms: [],
+  });
+
+  const handleSelectItem = (
+    id: string,
+    type: "servers" | "friends" | "dms"
+  ) => {
+    setSelectedItems((prev) => {
+      const newSelected = { ...prev };
+      if (newSelected[type].includes(id)) {
+        newSelected[type] = newSelected[type].filter((itemId) => itemId !== id);
+      } else {
+        newSelected[type].push(id);
+      }
+      return newSelected;
+    });
+  };
 
   const handleLogout = useCallback(() => {
     document.cookie =
@@ -76,7 +106,6 @@ export default function Page() {
             },
           }
         );
-
         if (friendsResponse.ok) {
           const relationships = await friendsResponse.json();
           const friends = relationships.filter(
@@ -84,6 +113,19 @@ export default function Page() {
           ); // Type 1 = friends
           setUserFriends(friends);
         } else throw new Error("Failed to fetch user friends");
+        // Fetch user's DMs
+        const dmsResponse = await fetch(
+          "https://discord.com/api/users/@me/channels",
+          {
+            headers: {
+              Authorization: userToken,
+            },
+          }
+        );
+        if (dmsResponse.ok) {
+          const dms = await dmsResponse.json();
+          setUserDms(dms);
+        } else throw new Error("Failed to fetch user DMs");
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -150,7 +192,9 @@ export default function Page() {
 
       if (response.ok) {
         toast.success(`Successfully left server!`);
-        fetchUserData(token); // Refresh data
+        setUserGuilds((prevGuilds) =>
+          prevGuilds.filter((guild) => guild.id !== guildId)
+        );
       } else {
         toast.error("Failed to leave server.");
       }
@@ -174,7 +218,9 @@ export default function Page() {
 
       if (response.ok) {
         toast.success(`Successfully removed friend!`);
-        fetchUserData(token); // Refresh data
+        setUserFriends((prevFriends) =>
+          prevFriends.filter((friend) => friend.id !== userId)
+        );
       } else {
         toast.error("Failed to remove friend.");
       }
@@ -182,6 +228,64 @@ export default function Page() {
       console.error("Error removing friend:", error);
       toast.error("Error removing friend.");
     }
+  };
+
+  const closeDm = async (channelId: string) => {
+    try {
+      const response = await fetch(
+        `https://discord.com/api/channels/${channelId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        toast.success(`Successfully closed DM!`);
+        setUserDms((prevDms) => prevDms.filter((dm) => dm.id !== channelId));
+      } else {
+        toast.error("Failed to close DM.");
+      }
+    } catch (error) {
+      console.error("Error closing DM:", error);
+      toast.error("Error closing DM.");
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    const { servers, friends, dms } = selectedItems;
+    const totalCount = servers.length + friends.length + dms.length;
+
+    if (totalCount === 0) {
+      toast.info("No items selected for deletion.");
+      return;
+    }
+
+    setIsLoading(true);
+    toast.info(`Starting to delete ${totalCount} selected items...`);
+
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    for (const guildId of servers) {
+      await leaveServer(guildId);
+      await delay(1000);
+    }
+
+    for (const userId of friends) {
+      await removeFriend(userId);
+      await delay(1000);
+    }
+
+    for (const channelId of dms) {
+      await closeDm(channelId);
+      await delay(1000);
+    }
+
+    setSelectedItems({ servers: [], friends: [], dms: [] });
+    setIsLoading(false);
+    toast.success("Finished deleting selected items.");
   };
 
   const defaultTab = isAuthenticated ? "servers" : "auth";
@@ -198,138 +302,47 @@ export default function Page() {
             <TabsTrigger value="friends">
               Friends ({userFriends.length})
             </TabsTrigger>
+            <TabsTrigger value="dms">Open dms ({userDms.length})</TabsTrigger>
           </TabsList>
-
           <TabsContent value="auth">
-            <Card>
-              <CardHeader>
-                <CardTitle>Discord Token</CardTitle>
-                <CardDescription>
-                  Enter your Discord token to clean up your account. This runs
-                  completely in your browser - your token never touches our
-                  servers.
-                </CardDescription>
-              </CardHeader>
-              {!isAuthenticated ? (
-                <CardContent className="grid gap-6">
-                  <div className="grid gap-3">
-                    <Label htmlFor="discord-token">Discord Token</Label>
-                    <Input
-                      id="discord-token"
-                      type="password"
-                      value={token}
-                      onChange={(e) => setToken(e.target.value)}
-                      placeholder="Enter your Discord token"
-                    />
-                    <div className="text-xs text-gray-600 bg-yellow-50 p-3 rounded">
-                      <strong>Security Note:</strong> Your token is stored only
-                      in your browser&apos;s cookies and is never sent to our
-                      servers. All Discord API calls happen directly from your
-                      browser to Discord.
-                    </div>
-                  </div>
-                </CardContent>
-              ) : null}
-              <CardFooter>
-                {!isAuthenticated ? (
-                  <Button onClick={handleTokenSave} disabled={isLoading}>
-                    {isLoading ? "Verifying..." : "Verify and save"}
-                  </Button>
-                ) : (
-                  <Button onClick={handleLogout} variant="outline">
-                    Logout
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
+            <AuthTab
+              isAuthenticated={isAuthenticated}
+              token={token}
+              setToken={setToken}
+              isLoading={isLoading}
+              handleTokenSave={handleTokenSave}
+              handleLogout={handleLogout}
+            />
           </TabsContent>
-
           <TabsContent value="servers">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Servers</CardTitle>
-                <CardDescription>
-                  Leave servers you no longer want to be part of.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {userGuilds.length > 0 ? (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {userGuilds.map((guild: Guild) => (
-                      <div
-                        key={guild.id}
-                        className="flex items-center justify-between p-3 border rounded"
-                      >
-                        <div>
-                          <div className="font-medium">{guild.name}</div>
-                          <div className="text-sm text-gray-500">
-                            ID: {guild.id}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => leaveServer(guild.id)}
-                          variant="destructive"
-                          size="sm"
-                        >
-                          Leave
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    {isAuthenticated
-                      ? "No servers found"
-                      : "Please authenticate first"}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <ServerTab
+              userGuilds={userGuilds}
+              isAuthenticated={isAuthenticated}
+              leaveServer={leaveServer}
+              selectedItems={selectedItems}
+              handleSelectItem={handleSelectItem}
+              handleDeleteSelected={handleDeleteSelected}
+            />
           </TabsContent>
-
           <TabsContent value="friends">
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Friends</CardTitle>
-                <CardDescription>
-                  Remove friends you no longer want to keep.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {userFriends.length > 0 ? (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {userFriends.map((friend: Relationship) => (
-                      <div
-                        key={friend.user.id}
-                        className="flex items-center justify-between p-3 border rounded"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {friend.user.username}#{friend.user.discriminator}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {friend.user.id}
-                          </div>
-                        </div>
-                        <Button
-                          onClick={() => removeFriend(friend.user.id)}
-                          variant="destructive"
-                          size="sm"
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-500 py-8">
-                    {isAuthenticated
-                      ? "No friends found"
-                      : "Please authenticate first"}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <FriendTab
+              userFriends={userFriends}
+              isAuthenticated={isAuthenticated}
+              removeFriend={removeFriend}
+              selectedItems={selectedItems}
+              handleSelectItem={handleSelectItem}
+              handleDeleteSelected={handleDeleteSelected}
+            />
+          </TabsContent>
+          <TabsContent value="dms">
+            <DmTab
+              userDms={userDms}
+              isAuthenticated={isAuthenticated}
+              closeDm={closeDm}
+              selectedItems={selectedItems}
+              handleSelectItem={handleSelectItem}
+              handleDeleteSelected={handleDeleteSelected}
+            />
           </TabsContent>
         </Tabs>
       </div>
