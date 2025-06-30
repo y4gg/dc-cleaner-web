@@ -42,6 +42,7 @@ export default function Page() {
   const [userFriends, setUserFriends] = useState<Relationship[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userDms, setUserDms] = useState<Channel[]>([]);
+  const [loadingItems, setLoadingItems] = useState<string[]>([]);
   const [selectedItems, setSelectedItems] = useState<{
     servers: string[];
     friends: string[];
@@ -179,6 +180,7 @@ export default function Page() {
   };
 
   const leaveServer = async (guildId: string) => {
+    setLoadingItems((prev) => [...prev, guildId]);
     try {
       const response = await fetch(
         `https://discord.com/api/users/@me/guilds/${guildId}`,
@@ -201,10 +203,13 @@ export default function Page() {
     } catch (error) {
       console.error("Error leaving server:", error);
       toast.error("Error leaving server.");
+    } finally {
+      setLoadingItems((prev) => prev.filter((id) => id !== guildId));
     }
   };
 
   const removeFriend = async (userId: string) => {
+    setLoadingItems((prev) => [...prev, userId]);
     try {
       const response = await fetch(
         `https://discord.com/api/users/@me/relationships/${userId}`,
@@ -227,10 +232,13 @@ export default function Page() {
     } catch (error) {
       console.error("Error removing friend:", error);
       toast.error("Error removing friend.");
+    } finally {
+      setLoadingItems((prev) => prev.filter((id) => id !== userId));
     }
   };
 
   const closeDm = async (channelId: string) => {
+    setLoadingItems((prev) => [...prev, channelId]);
     try {
       const response = await fetch(
         `https://discord.com/api/channels/${channelId}`,
@@ -251,7 +259,25 @@ export default function Page() {
     } catch (error) {
       console.error("Error closing DM:", error);
       toast.error("Error closing DM.");
+    } finally {
+      setLoadingItems((prev) => prev.filter((id) => id !== channelId));
     }
+  };
+
+  const handleSelectAll = (
+    type: "servers" | "friends" | "dms",
+    ids: string[]
+  ) => {
+    setSelectedItems((prev) => {
+      const newSelected = { ...prev };
+      const currentSelected = newSelected[type];
+      if (currentSelected.length === ids.length) {
+        newSelected[type] = [];
+      } else {
+        newSelected[type] = ids;
+      }
+      return newSelected;
+    });
   };
 
   const handleDeleteSelected = async () => {
@@ -322,6 +348,9 @@ export default function Page() {
               selectedItems={selectedItems}
               handleSelectItem={handleSelectItem}
               handleDeleteSelected={handleDeleteSelected}
+              isLoading={isLoading}
+              loadingItems={loadingItems}
+              handleSelectAll={handleSelectAll}
             />
           </TabsContent>
           <TabsContent value="friends">
@@ -332,6 +361,9 @@ export default function Page() {
               selectedItems={selectedItems}
               handleSelectItem={handleSelectItem}
               handleDeleteSelected={handleDeleteSelected}
+              isLoading={isLoading}
+              loadingItems={loadingItems}
+              handleSelectAll={handleSelectAll}
             />
           </TabsContent>
           <TabsContent value="dms">
@@ -342,6 +374,9 @@ export default function Page() {
               selectedItems={selectedItems}
               handleSelectItem={handleSelectItem}
               handleDeleteSelected={handleDeleteSelected}
+              isLoading={isLoading}
+              loadingItems={loadingItems}
+              handleSelectAll={handleSelectAll}
             />
           </TabsContent>
         </Tabs>

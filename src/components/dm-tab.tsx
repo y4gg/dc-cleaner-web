@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "./ui/checkbox";
+import { Loader2 } from "lucide-react";
 
 interface Recipient {
   id: string;
@@ -32,6 +33,9 @@ interface DmTabProps {
   };
   handleSelectItem: (id: string, type: "dms") => void;
   handleDeleteSelected: () => void;
+  isLoading: boolean;
+  loadingItems: string[];
+  handleSelectAll: (type: "dms", ids: string[]) => void;
 }
 
 export function DmTab({
@@ -41,6 +45,9 @@ export function DmTab({
   selectedItems,
   handleSelectItem,
   handleDeleteSelected,
+  isLoading,
+  loadingItems,
+  handleSelectAll,
 }: DmTabProps) {
   const totalSelected =
     selectedItems.servers.length +
@@ -80,8 +87,13 @@ export function DmTab({
                   onClick={() => closeDm(dm.id)}
                   variant="destructive"
                   size="sm"
+                  disabled={loadingItems.includes(dm.id)}
                 >
-                  Close
+                  {loadingItems.includes(dm.id) ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Close"
+                  )}
                 </Button>
               </div>
             ))}
@@ -94,13 +106,23 @@ export function DmTab({
           </div>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-between">
         <Button
           onClick={handleDeleteSelected}
           variant="destructive"
-          disabled={totalSelected === 0}
+          disabled={selectedItems.dms.length === 0 || isLoading}
         >
-          Delete Selected ({totalSelected})
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Delete Selected ({selectedItems.dms.length})
+        </Button>
+        <Button
+          onClick={() => handleSelectAll("dms", userDms.map((d) => d.id))}
+          variant="outline"
+          disabled={userDms.length === 0}
+        >
+          {selectedItems.dms.length === userDms.length
+            ? "Deselect All"
+            : "Select All"}
         </Button>
       </CardFooter>
     </Card>
