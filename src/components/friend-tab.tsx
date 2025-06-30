@@ -17,7 +17,7 @@ interface Relationship {
   user: {
     id: string;
     username: string;
-    discriminator: string;
+    global_name: string;
   };
 }
 
@@ -89,7 +89,7 @@ export function FriendTab({
                   />
                   <div>
                     <div className="font-medium">
-                      {friend.user.username}#{friend.user.discriminator}
+                    {friend.user.global_name} (@{friend.user.username})
                     </div>
                     <div className="text-sm text-gray-500">
                       ID: {friend.user.id}

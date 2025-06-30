@@ -21,7 +21,7 @@ interface Relationship {
   user: {
     id: string;
     username: string;
-    discriminator: string;
+    global_name: string;
   };
 }
 
@@ -33,8 +33,7 @@ interface Channel {
 
 interface Recipient {
   id: string;
-  username: string;
-  discriminator: string;
+  global_name: string;
 }
 
 export default function Page() {

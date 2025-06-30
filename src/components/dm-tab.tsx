@@ -13,8 +13,7 @@ import { Progress } from "@/components/ui/progress";
 
 interface Recipient {
   id: string;
-  username: string;
-  discriminator: string;
+  global_name: string;
 }
 
 interface Channel {
@@ -88,7 +87,7 @@ export function DmTab({
                   />
                   <div>
                     <div className="font-medium">
-                      {dm.recipients.map((r) => r.username).join(", ")}
+                      {dm.recipients.map((r) => r.global_name).join(", ")}
                     </div>
                     <div className="text-sm text-gray-500">ID: {dm.id}</div>
                   </div>
