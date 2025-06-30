@@ -43,6 +43,10 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [userDms, setUserDms] = useState<Channel[]>([]);
   const [loadingItems, setLoadingItems] = useState<string[]>([]);
+  const [deletionProgress, setDeletionProgress] = useState<{
+    deleted: number;
+    total: number;
+  }>({ deleted: 0, total: 0 });
   const [selectedItems, setSelectedItems] = useState<{
     servers: string[];
     friends: string[];
@@ -179,7 +183,7 @@ export default function Page() {
     }
   };
 
-  const leaveServer = async (guildId: string) => {
+  const leaveServer = async (guildId: string): Promise<boolean> => {
     setLoadingItems((prev) => [...prev, guildId]);
     try {
       const response = await fetch(
@@ -197,18 +201,21 @@ export default function Page() {
         setUserGuilds((prevGuilds) =>
           prevGuilds.filter((guild) => guild.id !== guildId)
         );
+        return true;
       } else {
         toast.error("Failed to leave server.");
+        return false;
       }
     } catch (error) {
       console.error("Error leaving server:", error);
       toast.error("Error leaving server.");
+      return false;
     } finally {
       setLoadingItems((prev) => prev.filter((id) => id !== guildId));
     }
   };
 
-  const removeFriend = async (userId: string) => {
+  const removeFriend = async (userId: string): Promise<boolean> => {
     setLoadingItems((prev) => [...prev, userId]);
     try {
       const response = await fetch(
@@ -224,20 +231,23 @@ export default function Page() {
       if (response.ok) {
         toast.success(`Successfully removed friend!`);
         setUserFriends((prevFriends) =>
-          prevFriends.filter((friend) => friend.id !== userId)
+          prevFriends.filter((friend) => friend.user.id !== userId)
         );
+        return true;
       } else {
         toast.error("Failed to remove friend.");
+        return false;
       }
     } catch (error) {
       console.error("Error removing friend:", error);
       toast.error("Error removing friend.");
+      return false;
     } finally {
       setLoadingItems((prev) => prev.filter((id) => id !== userId));
     }
   };
 
-  const closeDm = async (channelId: string) => {
+  const closeDm = async (channelId: string): Promise<boolean> => {
     setLoadingItems((prev) => [...prev, channelId]);
     try {
       const response = await fetch(
@@ -253,12 +263,15 @@ export default function Page() {
       if (response.ok) {
         toast.success(`Successfully closed DM!`);
         setUserDms((prevDms) => prevDms.filter((dm) => dm.id !== channelId));
+        return true;
       } else {
         toast.error("Failed to close DM.");
+        return false;
       }
     } catch (error) {
       console.error("Error closing DM:", error);
       toast.error("Error closing DM.");
+      return false;
     } finally {
       setLoadingItems((prev) => prev.filter((id) => id !== channelId));
     }
@@ -290,28 +303,46 @@ export default function Page() {
     }
 
     setIsLoading(true);
+    let deletedCount = 0;
+    setDeletionProgress({ deleted: 0, total: totalCount });
     toast.info(`Starting to delete ${totalCount} selected items...`);
 
     const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
     for (const guildId of servers) {
-      await leaveServer(guildId);
+      const success = await leaveServer(guildId);
+      if (success) {
+        deletedCount++;
+        setDeletionProgress({ deleted: deletedCount, total: totalCount });
+      }
       await delay(1000);
     }
 
     for (const userId of friends) {
-      await removeFriend(userId);
+      const success = await removeFriend(userId);
+      if (success) {
+        deletedCount++;
+        setDeletionProgress({ deleted: deletedCount, total: totalCount });
+      }
       await delay(1000);
     }
 
     for (const channelId of dms) {
-      await closeDm(channelId);
+      const success = await closeDm(channelId);
+      if (success) {
+        deletedCount++;
+        setDeletionProgress({ deleted: deletedCount, total: totalCount });
+      }
       await delay(1000);
     }
 
     setSelectedItems({ servers: [], friends: [], dms: [] });
     setIsLoading(false);
     toast.success("Finished deleting selected items.");
+    setTimeout(
+      () => setDeletionProgress({ deleted: 0, total: 0 }),
+      2000
+    );
   };
 
   const defaultTab = isAuthenticated ? "servers" : "auth";
@@ -351,6 +382,7 @@ export default function Page() {
               isLoading={isLoading}
               loadingItems={loadingItems}
               handleSelectAll={handleSelectAll}
+              deletionProgress={deletionProgress}
             />
           </TabsContent>
           <TabsContent value="friends">
@@ -364,6 +396,7 @@ export default function Page() {
               isLoading={isLoading}
               loadingItems={loadingItems}
               handleSelectAll={handleSelectAll}
+              deletionProgress={deletionProgress}
             />
           </TabsContent>
           <TabsContent value="dms">
@@ -377,6 +410,7 @@ export default function Page() {
               isLoading={isLoading}
               loadingItems={loadingItems}
               handleSelectAll={handleSelectAll}
+              deletionProgress={deletionProgress}
             />
           </TabsContent>
         </Tabs>

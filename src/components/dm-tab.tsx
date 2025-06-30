@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface Recipient {
   id: string;
@@ -36,6 +37,10 @@ interface DmTabProps {
   isLoading: boolean;
   loadingItems: string[];
   handleSelectAll: (type: "dms", ids: string[]) => void;
+  deletionProgress: {
+    deleted: number;
+    total: number;
+  };
 }
 
 export function DmTab({
@@ -48,7 +53,16 @@ export function DmTab({
   isLoading,
   loadingItems,
   handleSelectAll,
+  deletionProgress,
 }: DmTabProps) {
+  const selectionProgress =
+    userDms.length > 0
+      ? (selectedItems.dms.length / userDms.length) * 100
+      : 0;
+  const deletionProgressValue =
+    deletionProgress.total > 0
+      ? (deletionProgress.deleted / deletionProgress.total) * 100
+      : 0;
   const totalSelected =
     selectedItems.servers.length +
     selectedItems.friends.length +
@@ -59,7 +73,7 @@ export function DmTab({
       <CardHeader>
         <CardTitle>Open DMs</CardTitle>
         <CardDescription>
-          Close any open DM channels you no longer need.
+          Close any open DM channels you no longer need. Warning: This includes leaving groups as well.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,7 +120,7 @@ export function DmTab({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex items-center justify-between">
         <Button
           onClick={handleDeleteSelected}
           variant="destructive"
@@ -115,6 +129,10 @@ export function DmTab({
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Delete Selected ({selectedItems.dms.length})
         </Button>
+        <Progress
+          value={isLoading ? deletionProgressValue : selectionProgress}
+          className="w-1/2"
+        />
         <Button
           onClick={() => handleSelectAll("dms", userDms.map((d) => d.id))}
           variant="outline"

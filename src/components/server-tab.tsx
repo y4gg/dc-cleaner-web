@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface Guild {
   id: string;
@@ -29,6 +30,10 @@ interface ServerTabProps {
   isLoading: boolean;
   loadingItems: string[];
   handleSelectAll: (type: "servers", ids: string[]) => void;
+  deletionProgress: {
+    deleted: number;
+    total: number;
+  };
 }
 
 export function ServerTab({
@@ -41,11 +46,22 @@ export function ServerTab({
   isLoading,
   loadingItems,
   handleSelectAll,
+  deletionProgress,
 }: ServerTabProps) {
   const totalSelected =
     selectedItems.servers.length +
     selectedItems.friends.length +
     selectedItems.dms.length;
+
+  const selectionProgress =
+    userGuilds.length > 0
+      ? (selectedItems.servers.length / userGuilds.length) * 100
+      : 0;
+
+  const deletionProgressValue =
+    deletionProgress.total > 0
+      ? (deletionProgress.deleted / deletionProgress.total) * 100
+      : 0;
 
   return (
     <Card>
@@ -97,7 +113,7 @@ export function ServerTab({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex items-center justify-between">
         <Button
           onClick={handleDeleteSelected}
           variant="destructive"
@@ -106,6 +122,10 @@ export function ServerTab({
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Delete Selected ({selectedItems.servers.length})
         </Button>
+        <Progress
+          value={isLoading ? deletionProgressValue : selectionProgress}
+          className="w-1/2"
+        />
         <Button
           onClick={() => handleSelectAll("servers", userGuilds.map((g) => g.id))}
           variant="outline"
