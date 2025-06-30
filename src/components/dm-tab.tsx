@@ -63,10 +63,6 @@ export function DmTab({
     deletionProgress.total > 0
       ? (deletionProgress.deleted / deletionProgress.total) * 100
       : 0;
-  const totalSelected =
-    selectedItems.servers.length +
-    selectedItems.friends.length +
-    selectedItems.dms.length;
 
   return (
     <Card>

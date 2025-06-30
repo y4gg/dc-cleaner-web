@@ -48,11 +48,6 @@ export function ServerTab({
   handleSelectAll,
   deletionProgress,
 }: ServerTabProps) {
-  const totalSelected =
-    selectedItems.servers.length +
-    selectedItems.friends.length +
-    selectedItems.dms.length;
-
   const selectionProgress =
     userGuilds.length > 0
       ? (selectedItems.servers.length / userGuilds.length) * 100

@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Github } from "lucide-react";
 
 interface Guild {
   id: string;
@@ -43,6 +45,7 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
   const [userDms, setUserDms] = useState<Channel[]>([]);
   const [loadingItems, setLoadingItems] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState("auth");
   const [deletionProgress, setDeletionProgress] = useState<{
     deleted: number;
     total: number;
@@ -78,8 +81,10 @@ export default function Page() {
     setIsAuthenticated(false);
     setUserGuilds([]);
     setUserFriends([]);
+    setUserDms([]);
     setToken("");
-  }, []);
+    setActiveTab("auth");
+  }, [setActiveTab]);
 
   const fetchUserData = useCallback(
     async (userToken: string) => {
@@ -145,8 +150,11 @@ export default function Page() {
       setToken(savedToken as string);
       setIsAuthenticated(true);
       fetchUserData(savedToken as string);
+      setActiveTab("servers");
+    } else {
+      setActiveTab("auth");
     }
-  }, [fetchUserData]);
+  }, [fetchUserData, setActiveTab]);
 
   const handleTokenSave = async () => {
     if (!token.trim()) {
@@ -165,13 +173,14 @@ export default function Page() {
 
       if (response.ok) {
         setCookie("discord_token", token, {
-          maxAge: 60 * 60 * 24 * 30, // 30 days
+          // maxAge: 60 * 60 * 24 * 30, // 30 days
           secure: true,
           sameSite: "strict",
         });
         setIsAuthenticated(true);
         toast.success("Token saved successfully!");
-        fetchUserData(token);
+        await fetchUserData(token);
+        setActiveTab("servers");
       } else {
         toast.error("Invalid token. Please check your Discord token.");
       }
@@ -339,18 +348,13 @@ export default function Page() {
     setSelectedItems({ servers: [], friends: [], dms: [] });
     setIsLoading(false);
     toast.success("Finished deleting selected items.");
-    setTimeout(
-      () => setDeletionProgress({ deleted: 0, total: 0 }),
-      2000
-    );
+    setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
   };
-
-  const defaultTab = isAuthenticated ? "servers" : "auth";
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="flex w-full max-w-2xl flex-col gap-6">
-        <Tabs defaultValue={defaultTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="auth">Discord Token</TabsTrigger>
             <TabsTrigger value="servers">
@@ -414,6 +418,16 @@ export default function Page() {
             />
           </TabsContent>
         </Tabs>
+        <div className="flex gap-2 items-center justify-center mt-4">
+          <Button variant={"link"} asChild>
+            <a href="https://y4.gg">Developed by y4.gg</a>
+          </Button>
+          <Button variant={"ghost"} size={"icon"} className="size-8">
+            <a href="https://github.com/y4gg/dc-cleaner-web">
+              <Github />
+            </a>
+          </Button>
+        </div>
       </div>
     </div>
   );
