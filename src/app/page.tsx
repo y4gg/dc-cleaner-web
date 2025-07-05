@@ -377,12 +377,12 @@ export default function Page() {
           <TabsList>
             <TabsTrigger value="auth">Discord Token</TabsTrigger>
             <TabsTrigger value="servers">
-              Servers ({userGuilds.length})
+              Leave Servers ({userGuilds.length})
             </TabsTrigger>
             <TabsTrigger value="friends">
-              Friends ({userFriends.length})
+              Remove Friends ({userFriends.length})
             </TabsTrigger>
-            <TabsTrigger value="dms">Open dms ({userDms.length})</TabsTrigger>
+            <TabsTrigger value="dms">Close dms ({userDms.length})</TabsTrigger>
           </TabsList>
           <TabsContent value="auth">
             <AuthTab
