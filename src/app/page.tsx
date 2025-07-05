@@ -13,6 +13,7 @@ import { Github } from "lucide-react";
 interface Guild {
   id: string;
   name: string;
+  icon?: string;
 }
 
 interface Relationship {
@@ -22,6 +23,7 @@ interface Relationship {
     id: string;
     username: string;
     global_name: string;
+    avatar?: string;
   };
 }
 
@@ -29,11 +31,15 @@ interface Channel {
   id: string;
   type: number;
   recipients: Recipient[];
+  name?: string;
+  icon?: string;
 }
 
 interface Recipient {
   id: string;
   global_name: string;
+  username: string;
+  avatar?: string;
 }
 
 export default function Page() {
@@ -42,6 +48,7 @@ export default function Page() {
   const [userGuilds, setUserGuilds] = useState<Guild[]>([]);
   const [userFriends, setUserFriends] = useState<Relationship[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
   const [userDms, setUserDms] = useState<Channel[]>([]);
   const [loadingItems, setLoadingItems] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("auth");
@@ -85,62 +92,75 @@ export default function Page() {
     setActiveTab("auth");
   }, [setActiveTab]);
 
-  const fetchUserData = useCallback(
-    async (userToken: string) => {
-      try {
-        // Fetch user's guilds
-        const guildsResponse = await fetch(
-          "https://discord.com/api/users/@me/guilds",
-          {
-            headers: {
-              Authorization: userToken,
-            },
-          }
-        );
-        if (guildsResponse.status === 401) {
-          toast.error("Invalid token. You'll have to log in again.");
-          handleLogout();
-        }
-        if (guildsResponse.ok) {
-          const guilds = await guildsResponse.json();
-          setUserGuilds(guilds);
-        } else throw new Error("Failed to fetch user guilds");
+  const handleRefetch = async () => {
+    if (!token) return;
+    
+    setIsRefetching(true);
+    try {
+      await fetchUserData(token);
+      toast.success("Data refreshed successfully!");
+    } catch (error) {
+      console.error("Error refetching data:", error);
+      toast.error("Failed to refresh data. Please try again.");
+    } finally {
+      setIsRefetching(false);
+    }
+  };
 
-        // Fetch user's friends (relationships)
-        const friendsResponse = await fetch(
-          "https://discord.com/api/users/@me/relationships",
-          {
-            headers: {
-              Authorization: userToken,
-            },
-          }
-        );
-        if (friendsResponse.ok) {
-          const relationships = await friendsResponse.json();
-          const friends = relationships.filter(
-            (rel: Relationship) => rel.type === 1
-          ); // Type 1 = friends
-          setUserFriends(friends);
-        } else throw new Error("Failed to fetch user friends");
-        // Fetch user's DMs
-        const dmsResponse = await fetch(
-          "https://discord.com/api/users/@me/channels",
-          {
-            headers: {
-              Authorization: userToken,
-            },
-          }
-        );
-        if (dmsResponse.ok) {
-          const dms = await dmsResponse.json();
-          setUserDms(dms);
-        } else throw new Error("Failed to fetch user DMs");
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+  const fetchUserData = async (userToken: string) => {
+    try {
+      // Fetch user's guilds
+      const guildsResponse = await fetch(
+        "https://discord.com/api/users/@me/guilds",
+        {
+          headers: {
+            Authorization: userToken,
+          },
+        }
+      );
+      if (guildsResponse.status === 401) {
+        toast.error("Invalid token. You'll have to log in again.");
+        handleLogout();
+        return;
       }
-    },
-    [handleLogout]
-  );
+      if (guildsResponse.ok) {
+        const guilds = await guildsResponse.json();
+        setUserGuilds(guilds);
+      } else throw new Error("Failed to fetch user guilds");
+
+      // Fetch user's friends (relationships)
+      const friendsResponse = await fetch(
+        "https://discord.com/api/users/@me/relationships",
+        {
+          headers: {
+            Authorization: userToken,
+          },
+        }
+      );
+      if (friendsResponse.ok) {
+        const relationships = await friendsResponse.json();
+        const friends = relationships.filter(
+          (rel: Relationship) => rel.type === 1
+        ); // Type 1 = friends
+        setUserFriends(friends);
+      } else throw new Error("Failed to fetch user friends");
+      // Fetch user's DMs
+      const dmsResponse = await fetch(
+        "https://discord.com/api/users/@me/channels",
+        {
+          headers: {
+            Authorization: userToken,
+          },
+        }
+      );
+      if (dmsResponse.ok) {
+        const dms = await dmsResponse.json();
+        setUserDms(dms);
+      } else throw new Error("Failed to fetch user DMs");
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
   // Load token from cookies on component mount
   useEffect(() => {
@@ -153,7 +173,7 @@ export default function Page() {
     } else {
       setActiveTab("auth");
     }
-  }, [fetchUserData, setActiveTab]);
+  }, [setActiveTab]);
 
   const handleTokenSave = async () => {
     if (!token.trim()) {
@@ -372,6 +392,8 @@ export default function Page() {
               isLoading={isLoading}
               handleTokenSave={handleTokenSave}
               handleLogout={handleLogout}
+              onRefetch={handleRefetch}
+              isRefetching={isRefetching}
             />
           </TabsContent>
           <TabsContent value="servers">

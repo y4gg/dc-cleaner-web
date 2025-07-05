@@ -8,12 +8,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "./ui/checkbox";
-import { Loader2 } from "lucide-react";
+import { Loader2, Hash } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import Image from "next/image";
 
 interface Guild {
   id: string;
   name: string;
+  icon?: string;
 }
 
 interface ServerTabProps {
@@ -58,6 +60,13 @@ export function ServerTab({
       ? (deletionProgress.deleted / deletionProgress.total) * 100
       : 0;
 
+  const getServerIconUrl = (guildId: string, iconHash?: string) => {
+    if (iconHash) {
+      return `https://cdn.discordapp.com/icons/${guildId}/${iconHash}.png?size=64`;
+    }
+    return null;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -69,36 +78,55 @@ export function ServerTab({
       <CardContent>
         {userGuilds.length > 0 ? (
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {userGuilds.map((guild) => (
-              <div
-                key={guild.id}
-                className="flex items-center justify-between p-3 border rounded"
-              >
-                <div className="flex items-center gap-4">
-                  <Checkbox
-                    id={`server-${guild.id}`}
-                    checked={selectedItems.servers.includes(guild.id)}
-                    onCheckedChange={() => handleSelectItem(guild.id, "servers")}
-                  />
-                  <div>
-                    <div className="font-medium">{guild.name}</div>
-                    <div className="text-sm text-gray-500">ID: {guild.id}</div>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => leaveServer(guild.id)}
-                  variant="destructive"
-                  size="sm"
-                  disabled={loadingItems.includes(guild.id)}
+            {userGuilds.map((guild) => {
+              const iconUrl = getServerIconUrl(guild.id, guild.icon);
+              
+              return (
+                <div
+                  key={guild.id}
+                  className="flex items-center justify-between p-3 border rounded"
                 >
-                  {loadingItems.includes(guild.id) ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Leave"
-                  )}
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      id={`server-${guild.id}`}
+                      checked={selectedItems.servers.includes(guild.id)}
+                      onCheckedChange={() => handleSelectItem(guild.id, "servers")}
+                    />
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        {iconUrl ? (
+                          <Image
+                            src={iconUrl}
+                            alt={`${guild.name} server icon`}
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                          />
+                        ) : (
+                          <Hash className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium">{guild.name}</div>
+                        <div className="text-sm text-gray-500">ID: {guild.id}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => leaveServer(guild.id)}
+                    variant="destructive"
+                    size="sm"
+                    disabled={loadingItems.includes(guild.id)}
+                  >
+                    {loadingItems.includes(guild.id) ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Leave"
+                    )}
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center text-gray-500 py-8">

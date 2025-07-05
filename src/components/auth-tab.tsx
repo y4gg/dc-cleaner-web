@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 
 interface AuthTabProps {
   isAuthenticated: boolean;
@@ -18,6 +18,8 @@ interface AuthTabProps {
   isLoading: boolean;
   handleTokenSave: () => void;
   handleLogout: () => void;
+  onRefetch?: () => void;
+  isRefetching?: boolean;
 }
 
 export function AuthTab({
@@ -27,6 +29,8 @@ export function AuthTab({
   isLoading,
   handleTokenSave,
   handleLogout,
+  onRefetch,
+  isRefetching = false,
 }: AuthTabProps) {
   return (
     <Card>
@@ -55,8 +59,15 @@ export function AuthTab({
             </div>
           </div>
         </CardContent>
-      ) : null}
-      <CardFooter>
+      ) : (
+        <CardContent>
+          <div className="text-sm text-gray-600 bg-green-50 p-3 rounded">
+            <strong>Authenticated:</strong> You are currently logged in with your Discord token. 
+            You can now manage your servers, friends, and DMs.
+          </div>
+        </CardContent>
+      )}
+      <CardFooter className="flex gap-2">
         {!isAuthenticated ? (
           <Button onClick={handleTokenSave} disabled={isLoading}>
             {isLoading ? (
@@ -65,9 +76,25 @@ export function AuthTab({
             {isLoading ? "Verifying..." : "Verify and save"}
           </Button>
         ) : (
-          <Button onClick={handleLogout} variant="outline">
-            Logout
-          </Button>
+          <>
+            <Button onClick={handleLogout} variant="destructive">
+              Logout
+            </Button>
+            {onRefetch && (
+              <Button 
+                onClick={onRefetch} 
+                variant="outline"
+                disabled={isRefetching}
+              >
+                {isRefetching ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+                {isRefetching ? "Refetching..." : "Refetch Data"}
+              </Button>
+            )}
+          </>
         )}
       </CardFooter>
     </Card>
