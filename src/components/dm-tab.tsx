@@ -111,14 +111,14 @@ export function DmTab({
                     <div className="flex items-center gap-3">
                       {isGroupDm ? (
                         // Group DM display
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        <div className="relative w-10 h-10 aspect-square rounded-full overflow-hidden bg-gray-200 border border-gray-400 flex items-center justify-center">
                           {groupIconUrl ? (
                             <Image
                               src={groupIconUrl}
-                              alt={`${dm.name || 'Group'} icon`}
+                              alt="Group icon"
                               width={40}
                               height={40}
-                              className="object-cover"
+                              className="object-cover w-full h-full"
                             />
                           ) : (
                             <Users className="w-6 h-6 text-gray-400" />
@@ -126,7 +126,7 @@ export function DmTab({
                         </div>
                       ) : dm.recipients.length === 1 ? (
                         // Single DM display
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        <div className="relative w-10 h-10 aspect-square rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                           {(() => {
                             const recipient = dm.recipients[0];
                             const avatarUrl = getAvatarUrl(recipient.id, recipient.avatar);
@@ -136,7 +136,7 @@ export function DmTab({
                                 alt={`${recipient.global_name}'s avatar`}
                                 width={40}
                                 height={40}
-                                className="object-cover"
+                                className="object-cover w-full h-full"
                               />
                             ) : (
                               <User className="w-6 h-6 text-gray-400" />
@@ -145,7 +145,7 @@ export function DmTab({
                         </div>
                       ) : (
                         // Fallback for other types
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                        <div className="relative w-10 h-10 aspect-square rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                           <User className="w-6 h-6 text-gray-400" />
                         </div>
                       )}
