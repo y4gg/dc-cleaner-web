@@ -196,7 +196,7 @@ export function DmTab({
           disabled={selectedItems.dms.length === 0 || isLoading}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Delete Selected ({selectedItems.dms.length})
+          Close Selected ({selectedItems.dms.length})
         </Button>
         <Progress
           value={isLoading ? deletionProgressValue : selectionProgress}

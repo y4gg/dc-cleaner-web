@@ -70,7 +70,7 @@ export function ServerTab({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your Servers</CardTitle>
+        <CardTitle>Leave Servers</CardTitle>
         <CardDescription>
           Leave servers you no longer want to be part of.
         </CardDescription>
@@ -143,7 +143,7 @@ export function ServerTab({
           disabled={selectedItems.servers.length === 0 || isLoading}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Delete Selected ({selectedItems.servers.length})
+          Leave Selected ({selectedItems.servers.length})
         </Button>
         <Progress
           value={isLoading ? deletionProgressValue : selectionProgress}

@@ -8,56 +8,52 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "./ui/checkbox";
-import { Loader2, User } from "lucide-react";
+import { Loader2, Hash } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 
-interface Relationship {
+interface Guild {
   id: string;
-  type: number;
-  user: {
-    id: string;
-    username: string;
-    global_name: string;
-    avatar?: string;
-  };
+  name: string;
+  icon?: string;
 }
 
-interface FriendTabProps {
-  userFriends: Relationship[];
+interface ServerTabProps {
+  userGuilds: Guild[];
   isAuthenticated: boolean;
-  removeFriend: (userId: string) => void;
+  muteServer: (guildId: string) => Promise<boolean>;
   selectedItems: {
     servers: string[];
     friends: string[];
     dms: string[];
+    mutes: string[];
   };
-  handleSelectItem: (id: string, type: "friends") => void;
-  handleDeleteSelected: () => void;
+  handleSelectItem: (id: string, type: "servers" | "friends" | "dms" | "mutes") => void;
+  handleMuteSelected: () => void;
   isLoading: boolean;
   loadingItems: string[];
-  handleSelectAll: (type: "friends", ids: string[]) => void;
+  handleSelectAll: (type: "servers" | "friends" | "dms" | "mutes", ids: string[]) => void;
   deletionProgress: {
     deleted: number;
     total: number;
   };
 }
 
-export function FriendTab({
-  userFriends,
+export function ServerTab({
+  userGuilds,
   isAuthenticated,
-  removeFriend,
+  muteServer,
   selectedItems,
   handleSelectItem,
-  handleDeleteSelected,
+  handleMuteSelected,
   isLoading,
   loadingItems,
   handleSelectAll,
   deletionProgress,
-}: FriendTabProps) {
+}: ServerTabProps) {
   const selectionProgress =
-    userFriends.length > 0
-      ? (selectedItems.friends.length / userFriends.length) * 100
+    userGuilds.length > 0
+      ? (selectedItems.mutes.length / userGuilds.length) * 100
       : 0;
 
   const deletionProgressValue =
@@ -65,9 +61,9 @@ export function FriendTab({
       ? (deletionProgress.deleted / deletionProgress.total) * 100
       : 0;
 
-  const getAvatarUrl = (userId: string, avatarHash?: string) => {
-    if (avatarHash) {
-      return `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.png?size=64`;
+  const getServerIconUrl = (guildId: string, iconHash?: string) => {
+    if (iconHash) {
+      return `https://cdn.discordapp.com/icons/${guildId}/${iconHash}.png?size=64`;
     }
     return null;
   };
@@ -75,66 +71,58 @@ export function FriendTab({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your Friends</CardTitle>
+        <CardTitle>Mute Servers</CardTitle>
         <CardDescription>
-          Remove friends you no longer want to keep.
+          Mute servers that frequently spam you. I recommend you just select all.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {userFriends.length > 0 ? (
+        {userGuilds.length > 0 ? (
           <div className="space-y-2 max-h-96 overflow-y-auto">
-            {userFriends.map((friend: Relationship) => {
-              const avatarUrl = getAvatarUrl(friend.user.id, friend.user.avatar);
+            {userGuilds.map((guild) => {
+              const iconUrl = getServerIconUrl(guild.id, guild.icon);
               
               return (
                 <div
-                  key={friend.user.id}
+                  key={guild.id}
                   className="flex items-center justify-between p-3 border rounded"
                 >
                   <div className="flex items-center gap-4">
                     <Checkbox
-                      id={`friend-${friend.user.id}`}
-                      checked={selectedItems.friends.includes(friend.user.id)}
-                      onCheckedChange={() =>
-                        handleSelectItem(friend.user.id, "friends")
-                      }
+                      id={`server-${guild.id}`}
+                      checked={selectedItems.mutes.includes(guild.id)}
+                      onCheckedChange={() => handleSelectItem(guild.id, "mutes")}
                     />
-                    
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                        {avatarUrl ? (
+                        {iconUrl ? (
                           <Image
-                            src={avatarUrl}
-                            alt={`${friend.user.global_name}'s avatar`}
+                            src={iconUrl}
+                            alt={`${guild.name} server icon`}
                             width={40}
                             height={40}
                             className="object-cover"
                           />
                         ) : (
-                          <User className="w-6 h-6 text-gray-400" />
+                          <Hash className="w-6 h-6 text-gray-400" />
                         )}
                       </div>
-                      
                       <div>
-                        <div className="font-medium">
-                        {friend.user.global_name} (@{friend.user.username})
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          ID: {friend.user.id}
-                        </div>
+                        <div className="font-medium">{guild.name}</div>
+                        <div className="text-sm text-gray-500">ID: {guild.id}</div>
                       </div>
                     </div>
                   </div>
                   <Button
-                    onClick={() => removeFriend(friend.user.id)}
+                    onClick={() => muteServer(guild.id)}
                     variant="destructive"
                     size="sm"
-                    disabled={loadingItems.includes(friend.user.id)}
+                    disabled={loadingItems.includes(guild.id)}
                   >
-                    {loadingItems.includes(friend.user.id) ? (
+                    {loadingItems.includes(guild.id) ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      "Remove"
+                      "Mute"
                     )}
                   </Button>
                 </div>
@@ -143,34 +131,31 @@ export function FriendTab({
           </div>
         ) : (
           <div className="text-center text-gray-500 py-8">
-            {isAuthenticated ? "No friends found" : "Please authenticate first"}
+            {isAuthenticated
+              ? "No servers found"
+              : "Please authenticate first"}
           </div>
         )}
       </CardContent>
       <CardFooter className="flex items-center justify-between">
         <Button
-          onClick={handleDeleteSelected}
+          onClick={handleMuteSelected}
           variant="destructive"
-          disabled={selectedItems.friends.length === 0 || isLoading}
+          disabled={selectedItems.mutes.length === 0 || isLoading}
         >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Remove Selected ({selectedItems.friends.length})
+          Mute Selected ({selectedItems.mutes.length})
         </Button>
         <Progress
           value={isLoading ? deletionProgressValue : selectionProgress}
           className="w-1/2"
         />
         <Button
-          onClick={() =>
-            handleSelectAll(
-              "friends",
-              userFriends.map((f) => f.user.id)
-            )
-          }
+          onClick={() => handleSelectAll("mutes", userGuilds.map((g) => g.id))}
           variant="outline"
-          disabled={userFriends.length === 0}
+          disabled={userGuilds.length === 0}
         >
-          {selectedItems.friends.length === userFriends.length
+          {selectedItems.mutes.length === userGuilds.length
             ? "Deselect All"
             : "Select All"}
         </Button>

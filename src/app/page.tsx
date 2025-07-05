@@ -1,8 +1,9 @@
 "use client";
 import { FriendTab } from "@/components/friend-tab";
-import { ServerTab } from "@/components/server-tab";
+import { ServerTab } from "@/components/leave-server-tab";
 import { AuthTab } from "@/components/auth-tab";
 import { DmTab } from "../components/dm-tab";
+import { ServerTab as MuteServerTab } from "@/components/mute-servers-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
@@ -60,15 +61,17 @@ export default function Page() {
     servers: string[];
     friends: string[];
     dms: string[];
+    mutes: string[];
   }>({
     servers: [],
     friends: [],
     dms: [],
+    mutes: [],
   });
 
   const handleSelectItem = (
     id: string,
-    type: "servers" | "friends" | "dms"
+    type: "servers" | "friends" | "dms" | "mutes"
   ) => {
     setSelectedItems((prev) => {
       const newSelected = { ...prev };
@@ -94,7 +97,7 @@ export default function Page() {
 
   const handleRefetch = async () => {
     if (!token) return;
-    
+
     setIsRefetching(true);
     try {
       await fetchUserData(token);
@@ -107,7 +110,7 @@ export default function Page() {
     }
   };
 
-  const fetchUserData = async (userToken: string) => {
+  const fetchUserData = useCallback(async (userToken: string) => {
     try {
       // Fetch user's guilds
       const guildsResponse = await fetch(
@@ -160,7 +163,7 @@ export default function Page() {
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
-  };
+  }, [handleLogout]);
 
   // Load token from cookies on component mount
   useEffect(() => {
@@ -173,7 +176,7 @@ export default function Page() {
     } else {
       setActiveTab("auth");
     }
-  }, [setActiveTab]);
+  }, [setActiveTab, fetchUserData]);
 
   const handleTokenSave = async () => {
     if (!token.trim()) {
@@ -305,8 +308,51 @@ export default function Page() {
     }
   };
 
+  const muteServer = async (guildId: string): Promise<boolean> => {
+    setLoadingItems((prev) => [...prev, guildId]);
+    try {
+      const payload = {
+        guilds: {
+          [guildId]: {
+            muted: true,
+            mute_config: {
+              selected_time_window: -1,
+              end_time: null,
+            },
+          },
+        },
+      };
+
+      const response = await fetch(
+        "https://discord.com/api/v9/users/@me/guilds/settings",
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        toast.success(`Successfully muted server!`);
+        return true;
+      } else {
+        toast.error("Failed to mute server.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error muting server:", error);
+      toast.error("Error muting server.");
+      return false;
+    } finally {
+      setLoadingItems((prev) => prev.filter((id) => id !== guildId));
+    }
+  };
+
   const handleSelectAll = (
-    type: "servers" | "friends" | "dms",
+    type: "servers" | "friends" | "dms" | "mutes",
     ids: string[]
   ) => {
     setSelectedItems((prev) => {
@@ -364,9 +410,40 @@ export default function Page() {
       await delay(1000);
     }
 
-    setSelectedItems({ servers: [], friends: [], dms: [] });
+    setSelectedItems({ servers: [], friends: [], dms: [], mutes: [] });
     setIsLoading(false);
     toast.success("Finished deleting selected items.");
+    setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
+  };
+
+  const handleMuteSelected = async () => {
+    const { mutes } = selectedItems;
+    const totalCount = mutes.length;
+
+    if (totalCount === 0) {
+      toast.info("No servers selected for muting.");
+      return;
+    }
+
+    setIsLoading(true);
+    let mutedCount = 0;
+    setDeletionProgress({ deleted: 0, total: totalCount });
+    toast.info(`Starting to mute ${totalCount} selected servers...`);
+
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    for (const guildId of mutes) {
+      const success = await muteServer(guildId);
+      if (success) {
+        mutedCount++;
+        setDeletionProgress({ deleted: mutedCount, total: totalCount });
+      }
+      await delay(1000);
+    }
+
+    setSelectedItems((prev) => ({ ...prev, mutes: [] }));
+    setIsLoading(false);
+    toast.success("Finished muting selected servers.");
     setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
   };
 
@@ -378,6 +455,9 @@ export default function Page() {
             <TabsTrigger value="auth">Discord Token</TabsTrigger>
             <TabsTrigger value="servers">
               Leave Servers ({userGuilds.length})
+            </TabsTrigger>
+            <TabsTrigger value="mutes">
+              Mute Servers ({userGuilds.length})
             </TabsTrigger>
             <TabsTrigger value="friends">
               Remove Friends ({userFriends.length})
@@ -432,6 +512,20 @@ export default function Page() {
               selectedItems={selectedItems}
               handleSelectItem={handleSelectItem}
               handleDeleteSelected={handleDeleteSelected}
+              isLoading={isLoading}
+              loadingItems={loadingItems}
+              handleSelectAll={handleSelectAll}
+              deletionProgress={deletionProgress}
+            />
+          </TabsContent>
+          <TabsContent value="mutes">
+            <MuteServerTab
+              userGuilds={userGuilds}
+              isAuthenticated={isAuthenticated}
+              muteServer={muteServer}
+              selectedItems={selectedItems}
+              handleSelectItem={handleSelectItem}
+              handleMuteSelected={handleMuteSelected}
               isLoading={isLoading}
               loadingItems={loadingItems}
               handleSelectAll={handleSelectAll}
