@@ -33,16 +33,16 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           {children}
           <Toaster />
-        </ThemeProvider>
         <div className="absolute bottom-4 right-4">
           <ModeToggle />
         </div>
+        </ThemeProvider>
       </body>
     </html>
   );
