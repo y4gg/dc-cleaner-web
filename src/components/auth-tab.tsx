@@ -38,10 +38,10 @@ export function AuthTab({
         <CardTitle>Discord Token</CardTitle>
         <CardDescription>
           Enter your Discord token to clean up your account. This runs completely
-          in your browser - your token never touches our servers.
+          in your browser - your token never leaves your browser.
         </CardDescription>
       </CardHeader>
-      {!isAuthenticated ? (
+      {!isAuthenticated && (
         <CardContent className="grid gap-6">
           <div className="grid gap-3">
             <Label htmlFor="discord-token">Discord Token</Label>
@@ -52,24 +52,12 @@ export function AuthTab({
               onChange={(e) => setToken(e.target.value)}
               placeholder="Enter your Discord token"
             />
-            <div className="text-xs text-gray-600 bg-yellow-50 p-3 rounded">
-              <strong>Security Note:</strong> Your token is stored only in your
-              browser&apos;s cookies and is never sent to our servers. All Discord
-              API calls happen directly from your browser to Discord.
-            </div>
-          </div>
-        </CardContent>
-      ) : (
-        <CardContent>
-          <div className="text-sm text-gray-600 bg-green-50 p-3 rounded">
-            <strong>Authenticated:</strong> You are currently logged in with your Discord token. 
-            You can now manage your servers, friends, and DMs.
           </div>
         </CardContent>
       )}
       <CardFooter className="flex gap-2">
         {!isAuthenticated ? (
-          <Button onClick={handleTokenSave} disabled={isLoading}>
+          <Button onClick={handleTokenSave} disabled={isLoading} className="text-foreground">
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
@@ -85,6 +73,7 @@ export function AuthTab({
                 onClick={onRefetch} 
                 variant="outline"
                 disabled={isRefetching}
+                className="text-foreground"
               >
                 {isRefetching ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

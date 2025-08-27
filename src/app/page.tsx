@@ -8,8 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { InfoTab } from "@/components/info-tab";
 
 interface Guild {
   id: string;
@@ -463,6 +462,7 @@ export default function Page() {
               Remove Friends ({userFriends.length})
             </TabsTrigger>
             <TabsTrigger value="dms">Close dms ({userDms.length})</TabsTrigger>
+            <TabsTrigger value="info">Q&A</TabsTrigger>
           </TabsList>
           <TabsContent value="auth">
             <AuthTab
@@ -532,17 +532,10 @@ export default function Page() {
               deletionProgress={deletionProgress}
             />
           </TabsContent>
+          <TabsContent value="info">
+            <InfoTab/>
+          </TabsContent>
         </Tabs>
-        <div className="flex gap-2 items-center justify-center mt-4">
-          <Button variant={"link"} asChild>
-            <a href="https://y4.gg">Developed by y4.gg</a>
-          </Button>
-          <Button variant={"ghost"} size={"icon"} className="size-8">
-            <a href="https://github.com/y4gg/dc-cleaner-web">
-              <Github />
-            </a>
-          </Button>
-        </div>
       </div>
     </div>
   );
