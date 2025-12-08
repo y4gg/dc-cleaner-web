@@ -4,6 +4,7 @@ import { ServerTab } from "@/components/leave-server-tab";
 import { AuthTab } from "@/components/auth-tab";
 import { DmTab } from "../components/dm-tab";
 import { ServerTab as MuteServerTab } from "@/components/mute-servers-tab";
+import { MuteFriendsTab } from "@/components/mute-friends-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect, useCallback } from "react";
 import { setCookie, getCookie } from "cookies-next";
@@ -42,6 +43,13 @@ interface Recipient {
   avatar?: string;
 }
 
+type SelectionType =
+  | "servers"
+  | "friends"
+  | "dms"
+  | "mutes"
+  | "friendMutes";
+
 export default function Page() {
   const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -61,16 +69,18 @@ export default function Page() {
     friends: string[];
     dms: string[];
     mutes: string[];
+    friendMutes: string[];
   }>({
     servers: [],
     friends: [],
     dms: [],
     mutes: [],
+    friendMutes: [],
   });
 
   const handleSelectItem = (
     id: string,
-    type: "servers" | "friends" | "dms" | "mutes"
+    type: SelectionType
   ) => {
     setSelectedItems((prev) => {
       const newSelected = { ...prev };
@@ -350,10 +360,7 @@ export default function Page() {
     }
   };
 
-  const handleSelectAll = (
-    type: "servers" | "friends" | "dms" | "mutes",
-    ids: string[]
-  ) => {
+  const handleSelectAll = (type: SelectionType, ids: string[]) => {
     setSelectedItems((prev) => {
       const newSelected = { ...prev };
       const currentSelected = newSelected[type];
@@ -409,7 +416,13 @@ export default function Page() {
       await delay(1000);
     }
 
-    setSelectedItems({ servers: [], friends: [], dms: [], mutes: [] });
+    setSelectedItems({
+      servers: [],
+      friends: [],
+      dms: [],
+      mutes: [],
+      friendMutes: [],
+    });
     setIsLoading(false);
     toast.success("Finished deleting selected items.");
     setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
@@ -446,6 +459,91 @@ export default function Page() {
     setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
   };
 
+  const muteFriend = async (userId: string): Promise<boolean> => {
+    setLoadingItems((prev) => [...prev, userId]);
+    try {
+      const dmChannel = userDms.find(
+        (dm) =>
+          dm.type === 1 && dm.recipients.some((recipient) => recipient.id === userId)
+      );
+
+      if (!dmChannel) {
+        toast.error("No DM channel found for this friend to mute.");
+        return false;
+      }
+
+      const payload = {
+        channel_overrides: [
+          {
+            channel_id: dmChannel.id,
+            muted: true,
+            mute_config: {
+              selected_time_window: -1,
+              end_time: null,
+            },
+          },
+        ],
+      };
+
+      const response = await fetch(
+        "https://discord.com/api/v9/users/@me/settings",
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (response.ok) {
+        toast.success(`Successfully muted friend!`);
+        return true;
+      } else {
+        toast.error("Failed to mute friend.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error muting friend:", error);
+      toast.error("Error muting friend.");
+      return false;
+    } finally {
+      setLoadingItems((prev) => prev.filter((id) => id !== userId));
+    }
+  };
+
+  const handleMuteFriendsSelected = async () => {
+    const { friendMutes } = selectedItems;
+    const totalCount = friendMutes.length;
+
+    if (totalCount === 0) {
+      toast.info("No friends selected for muting.");
+      return;
+    }
+
+    setIsLoading(true);
+    let mutedCount = 0;
+    setDeletionProgress({ deleted: 0, total: totalCount });
+    toast.info(`Starting to mute ${totalCount} selected friends...`);
+
+    const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+    for (const userId of friendMutes) {
+      const success = await muteFriend(userId);
+      if (success) {
+        mutedCount++;
+        setDeletionProgress({ deleted: mutedCount, total: totalCount });
+      }
+      await delay(1000);
+    }
+
+    setSelectedItems((prev) => ({ ...prev, friendMutes: [] }));
+    setIsLoading(false);
+    toast.success("Finished muting selected friends.");
+    setTimeout(() => setDeletionProgress({ deleted: 0, total: 0 }), 2000);
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <div className="flex w-full max-w-2xl flex-col gap-6">
@@ -460,6 +558,9 @@ export default function Page() {
             </TabsTrigger>
             <TabsTrigger value="friends">
               Remove Friends ({userFriends.length})
+            </TabsTrigger>
+            <TabsTrigger value="friend-mutes">
+              Mute Friends ({userFriends.length})
             </TabsTrigger>
             <TabsTrigger value="dms">Close dms ({userDms.length})</TabsTrigger>
             <TabsTrigger value="info">Q&A</TabsTrigger>
@@ -498,6 +599,20 @@ export default function Page() {
               selectedItems={selectedItems}
               handleSelectItem={handleSelectItem}
               handleDeleteSelected={handleDeleteSelected}
+              isLoading={isLoading}
+              loadingItems={loadingItems}
+              handleSelectAll={handleSelectAll}
+              deletionProgress={deletionProgress}
+            />
+          </TabsContent>
+          <TabsContent value="friend-mutes">
+            <MuteFriendsTab
+              userFriends={userFriends}
+              isAuthenticated={isAuthenticated}
+              muteFriend={muteFriend}
+              selectedItems={selectedItems}
+              handleSelectItem={handleSelectItem}
+              handleMuteFriendsSelected={handleMuteFriendsSelected}
               isLoading={isLoading}
               loadingItems={loadingItems}
               handleSelectAll={handleSelectAll}

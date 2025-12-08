@@ -60,9 +60,7 @@ export function DmTab({
   deletionProgress,
 }: DmTabProps) {
   const selectionProgress =
-    userDms.length > 0
-      ? (selectedItems.dms.length / userDms.length) * 100
-      : 0;
+    userDms.length > 0 ? (selectedItems.dms.length / userDms.length) * 100 : 0;
   const deletionProgressValue =
     deletionProgress.total > 0
       ? (deletionProgress.deleted / deletionProgress.total) * 100
@@ -87,7 +85,8 @@ export function DmTab({
       <CardHeader>
         <CardTitle>Open DMs</CardTitle>
         <CardDescription>
-          Close any open DM channels you no longer need. Warning: This includes leaving groups as well.
+          Close any open DM channels you no longer need. Warning: This includes
+          leaving groups as well.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -95,8 +94,10 @@ export function DmTab({
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {userDms.map((dm: Channel) => {
               const isGroupDm = dm.type === 3;
-              const groupIconUrl = isGroupDm ? getGroupIconUrl(dm.id, dm.icon) : null;
-              
+              const groupIconUrl = isGroupDm
+                ? getGroupIconUrl(dm.id, dm.icon)
+                : null;
+
               return (
                 <div
                   key={dm.id}
@@ -129,7 +130,10 @@ export function DmTab({
                         <div className="relative w-10 h-10 aspect-square rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                           {(() => {
                             const recipient = dm.recipients[0];
-                            const avatarUrl = getAvatarUrl(recipient.id, recipient.avatar);
+                            const avatarUrl = getAvatarUrl(
+                              recipient.id,
+                              recipient.avatar
+                            );
                             return avatarUrl ? (
                               <Image
                                 src={avatarUrl}
@@ -153,11 +157,16 @@ export function DmTab({
                         <div className="font-medium">
                           {isGroupDm ? (
                             <>
-                              {dm.name || 'Group DM'} ({dm.recipients.map((r) => r.global_name).join(", ")})
+                              {dm.name || "Group DM"} (
+                              {dm.recipients
+                                .map((r) => r.global_name)
+                                .join(", ")}
+                              )
                             </>
                           ) : (
                             <>
-                              {dm.recipients[0].global_name} (@{dm.recipients[0].username})
+                              {dm.recipients[0].global_name} (@
+                              {dm.recipients[0].username})
                             </>
                           )}
                         </div>
@@ -203,7 +212,12 @@ export function DmTab({
           className="w-1/2"
         />
         <Button
-          onClick={() => handleSelectAll("dms", userDms.map((d) => d.id))}
+          onClick={() =>
+            handleSelectAll(
+              "dms",
+              userDms.map((d) => d.id)
+            )
+          }
           variant="outline"
           disabled={userDms.length === 0}
         >
