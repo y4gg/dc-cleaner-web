@@ -85,8 +85,7 @@ export function DmTab({
       <CardHeader>
         <CardTitle>Open DMs</CardTitle>
         <CardDescription>
-          Close any open DM channels you no longer need. Warning: This includes
-          leaving groups as well.
+          Close any open DM channels you no longer need. This includes groups as well.
         </CardDescription>
       </CardHeader>
       <CardContent>
