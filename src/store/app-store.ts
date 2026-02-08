@@ -49,7 +49,6 @@ interface AppStore {
   isLoading: boolean;
   isRefetching: boolean;
   loadingItems: string[];
-  activeTab: string;
   deletionProgress: {
     deleted: number;
     total: number;
@@ -66,7 +65,6 @@ interface AppStore {
 
   setToken: (token: string) => void;
   clearToken: () => void;
-  setActiveTab: (tab: string) => void;
   setLoading: (loading: boolean) => void;
   setRefetching: (refetching: boolean) => void;
   setLoadingItems: (items: string[]) => void;
@@ -107,7 +105,6 @@ export const useAppStore = create<AppStore>()(
       isLoading: false,
       isRefetching: false,
       loadingItems: [],
-      activeTab: 'auth',
       deletionProgress: { deleted: 0, total: 0 },
       selectedItems: {
         servers: [],
@@ -127,8 +124,6 @@ export const useAppStore = create<AppStore>()(
         localStorage.removeItem('discord_token');
         set({ token: '' });
       },
-
-      setActiveTab: (activeTab) => set({ activeTab }),
 
       setLoading: (isLoading) => set({ isLoading }),
 
@@ -242,7 +237,6 @@ export const useAppStore = create<AppStore>()(
           userGuilds: [],
           userFriends: [],
           userDms: [],
-          activeTab: 'auth',
         });
       },
 

@@ -20,6 +20,7 @@ interface AuthTabProps {
   handleLogout: () => void;
   onRefetch?: () => void;
   isRefetching?: boolean;
+  onSuccess?: () => void;
 }
 
 export function AuthTab({
