@@ -1,10 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
+import { useAppStore } from "@/store/app-store";
 
 export function PageLayout({ children }: { children: React.ReactNode }) {
+  const token = useAppStore((state) => state.token);
+  const fetchUserData = useAppStore((state) => state.fetchUserData);
+  const userGuilds = useAppStore((state) => state.userGuilds);
+
+  useEffect(() => {
+    if (token && userGuilds.length === 0) {
+      fetchUserData();
+    }
+  }, [token, userGuilds.length, fetchUserData]);
   return (
     <SidebarProvider>
       <AppSidebar />
