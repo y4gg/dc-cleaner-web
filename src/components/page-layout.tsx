@@ -49,7 +49,6 @@ function PageTitle() {
   const pathname = usePathname();
   
   const titles: Record<string, string> = {
-    "/": "Q&A",
     "/auth": "Discord Token",
     "/servers": "Leave Servers",
     "/mutes": "Mute Servers",

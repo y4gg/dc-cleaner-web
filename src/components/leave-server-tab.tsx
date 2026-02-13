@@ -136,7 +136,11 @@ export function ServerTab({
           <div className="text-center text-gray-500 py-8">
             {isAuthenticated
               ? "No servers found"
-              : "Please authenticate first"}
+              : (
+                <span>
+                  Please authenticate first. <a href="/" className="underline text-primary">Login here</a>
+                </span>
+              )}
           </div>
         )}
       </CardContent>
