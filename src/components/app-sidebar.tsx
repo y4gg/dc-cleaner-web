@@ -29,7 +29,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="flex flex-col gap-0.5 leading-none">
               <span className="font-medium">Discord Cleaner</span>
-              <span className="">v0.2.1</span>
+              <span className="">v0.3.0</span>
             </div>
           </div>
         </Link>
