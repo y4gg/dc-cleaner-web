@@ -78,6 +78,13 @@ export function AppNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/dm-mutes"}>
+              <Link href="/dm-mutes">
+                <span>Mute</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
     </>

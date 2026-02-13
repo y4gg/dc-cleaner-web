@@ -39,7 +39,8 @@ type SelectionType =
   | 'friends'
   | 'dms'
   | 'mutes'
-  | 'friendMutes';
+  | 'friendMutes'
+  | 'dmMutes';
 
 interface AppStore {
   token: string;
@@ -59,6 +60,7 @@ interface AppStore {
     dms: string[];
     mutes: string[];
     friendMutes: string[];
+    dmMutes: string[];
   };
 
   isAuthenticated: boolean;
@@ -75,6 +77,7 @@ interface AppStore {
     dms: string[];
     mutes: string[];
     friendMutes: string[];
+    dmMutes: string[];
   }) => void;
 
   selectItem: (id: string, type: SelectionType) => void;
@@ -89,10 +92,12 @@ interface AppStore {
   closeDm: (channelId: string) => Promise<boolean>;
   muteServer: (guildId: string) => Promise<boolean>;
   muteFriend: (userId: string) => Promise<boolean>;
+  muteDm: (channelId: string) => Promise<boolean>;
 
   handleDeleteSelected: () => Promise<void>;
   handleMuteSelected: () => Promise<void>;
   handleMuteFriendsSelected: () => Promise<void>;
+  handleMuteDmsSelected: () => Promise<void>;
 }
 
 export const useAppStore = create<AppStore>()(
@@ -112,6 +117,7 @@ export const useAppStore = create<AppStore>()(
         dms: [],
         mutes: [],
         friendMutes: [],
+        dmMutes: [],
       },
 
       isAuthenticated: false,
@@ -437,6 +443,50 @@ export const useAppStore = create<AppStore>()(
         }
       },
 
+      muteDm: async (channelId: string) => {
+        const token = get().token;
+        set((state) => ({ loadingItems: [...state.loadingItems, channelId] }));
+
+        try {
+          const payload = {
+            channel_overrides: [
+              {
+                channel_id: channelId,
+                muted: true,
+                mute_config: {
+                  selected_time_window: -1,
+                  end_time: null,
+                },
+              },
+            ],
+          };
+
+          const response = await fetch('https://discord.com/api/v9/users/@me/settings', {
+            method: 'PATCH',
+            headers: {
+              Authorization: `${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (response.ok) {
+            toast.success('Successfully muted DM!');
+            return true;
+          } else {
+            toast.error('Failed to mute DM.');
+            return false;
+          }
+        } catch (error) {
+          console.error('Error muting DM:', error);
+          return false;
+        } finally {
+          set((state) => ({
+            loadingItems: state.loadingItems.filter((id) => id !== channelId),
+          }));
+        }
+      },
+
       handleDeleteSelected: async () => {
         const { servers, friends, dms } = get().selectedItems;
         const totalCount = servers.length + friends.length + dms.length;
@@ -486,6 +536,7 @@ export const useAppStore = create<AppStore>()(
             dms: [],
             mutes: [],
             friendMutes: [],
+            dmMutes: [],
           },
           isLoading: false,
         });
@@ -554,6 +605,38 @@ export const useAppStore = create<AppStore>()(
           isLoading: false,
         }));
         toast.success('Finished muting selected friends.');
+        setTimeout(() => set({ deletionProgress: { deleted: 0, total: 0 } }), 2000);
+      },
+
+      handleMuteDmsSelected: async () => {
+        const { dmMutes } = get().selectedItems;
+        const totalCount = dmMutes.length;
+
+        if (totalCount === 0) {
+          toast.info('No DMs selected for muting.');
+          return;
+        }
+
+        set({ isLoading: true, deletionProgress: { deleted: 0, total: totalCount } });
+        toast.info(`Starting to mute ${totalCount} selected DMs...`);
+
+        let mutedCount = 0;
+        const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+        for (const channelId of dmMutes) {
+          const success = await get().muteDm(channelId);
+          if (success) {
+            mutedCount++;
+            set({ deletionProgress: { deleted: mutedCount, total: totalCount } });
+          }
+          await delay(1000);
+        }
+
+        set((state) => ({
+          selectedItems: { ...state.selectedItems, dmMutes: [] },
+          isLoading: false,
+        }));
+        toast.success('Finished muting selected DMs.');
         setTimeout(() => set({ deletionProgress: { deleted: 0, total: 0 } }), 2000);
       },
     }),
