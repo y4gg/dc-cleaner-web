@@ -38,8 +38,8 @@ const tools: { title: string; description: string; href: string }[] = [
     href: "/dms",
   },
   {
-    title: "Account Info",
-    description: "View information about your Discord account.",
+    title: "Q&A",
+    description: "Q&A about discord cleaner",
     href: "/info",
   },
 ];
