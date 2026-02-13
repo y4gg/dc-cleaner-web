@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
@@ -48,13 +49,13 @@ function PageTitle() {
   const pathname = usePathname();
   
   const titles: Record<string, string> = {
+    "/": "Q&A",
     "/auth": "Discord Token",
     "/servers": "Leave Servers",
     "/mutes": "Mute Servers",
     "/friends": "Remove Friends",
     "/friend-mutes": "Mute Friends",
     "/dms": "Close DMs",
-    "/info": "Q&A",
   };
   
   return (
@@ -63,5 +64,3 @@ function PageTitle() {
     </h1>
   );
 }
-
-import { usePathname } from "next/navigation";

@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuBadge,
 } from "@/components/ui/sidebar";
 import { useAppStore } from "@/store/app-store";
 
@@ -21,29 +20,22 @@ export function AppNav() {
   return (
     <>
       <SidebarGroup>
-        <SidebarGroupLabel>Servers</SidebarGroupLabel>
+        <SidebarGroupLabel>
+          Servers
+          {userGuilds.length > 0 && <span className="ml-auto opacity-60">{userGuilds.length}</span>}
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/servers"}>
               <Link href="/servers">
-                <span>Leave Servers</span>
-                {userGuilds.length > 0 && (
-                  <SidebarMenuBadge className="ml-auto">
-                    {userGuilds.length}
-                  </SidebarMenuBadge>
-                )}
+                <span>Leave</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/mutes"}>
               <Link href="/mutes">
-                <span>Mute Servers</span>
-                {userGuilds.length > 0 && (
-                  <SidebarMenuBadge className="ml-auto">
-                    {userGuilds.length}
-                  </SidebarMenuBadge>
-                )}
+                <span>Mute</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -51,41 +43,38 @@ export function AppNav() {
       </SidebarGroup>
 
       <SidebarGroup>
-        <SidebarGroupLabel>Friends & DMs</SidebarGroupLabel>
+        <SidebarGroupLabel>
+          Friends
+          {userFriends.length > 0 && <span className="ml-auto opacity-60">{userFriends.length}</span>}
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/friends"}>
               <Link href="/friends">
-                <span>Remove Friends</span>
-                {userFriends.length > 0 && (
-                  <SidebarMenuBadge className="ml-auto">
-                    {userFriends.length}
-                  </SidebarMenuBadge>
-                )}
+                <span>Remove</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/friend-mutes"}>
               <Link href="/friend-mutes">
-                <span>Mute Friends</span>
-                {userFriends.length > 0 && (
-                  <SidebarMenuBadge className="ml-auto">
-                    {userFriends.length}
-                  </SidebarMenuBadge>
-                )}
+                <span>Mute</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+
+      <SidebarGroup>
+        <SidebarGroupLabel>
+          DMs
+          {userDms.length > 0 && <span className="ml-auto opacity-60">{userDms.length}</span>}
+        </SidebarGroupLabel>
+        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild isActive={pathname === "/dms"}>
               <Link href="/dms">
-                <span>Close DMs</span>
-                {userDms.length > 0 && (
-                  <SidebarMenuBadge className="ml-auto">
-                    {userDms.length}
-                  </SidebarMenuBadge>
-                )}
+                <span>Close</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
