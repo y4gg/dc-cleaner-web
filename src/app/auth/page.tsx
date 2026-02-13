@@ -27,7 +27,7 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://discord.com/api/users/@me/guilds", {
+      const response = await fetch("https://discord.com/api/users/@me", {
         headers: {
           Authorization: `${token}`,
         },
