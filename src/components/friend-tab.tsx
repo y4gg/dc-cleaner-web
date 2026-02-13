@@ -141,6 +141,10 @@ export function FriendTab({
               );
             })}
           </div>
+        ) : isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
         ) : (
           <div className="text-center text-gray-500 py-8">
             {isAuthenticated ? "No friends found" : "Please authenticate first"}

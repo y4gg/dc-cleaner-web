@@ -162,6 +162,7 @@ export const useAppStore = create<AppStore>()(
         const token = get().token;
         if (!token) return;
 
+        set({ isLoading: true });
         try {
           const guildsResponse = await fetch('https://discord.com/api/users/@me/guilds', {
             headers: {
@@ -210,6 +211,8 @@ export const useAppStore = create<AppStore>()(
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
+        } finally {
+          set({ isLoading: false });
         }
       },
 
