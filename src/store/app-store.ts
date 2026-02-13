@@ -114,15 +114,13 @@ export const useAppStore = create<AppStore>()(
         friendMutes: [],
       },
 
-      get isAuthenticated() {
-        return !!get().token;
-      },
+      isAuthenticated: false,
 
-      setToken: (token) => set({ token }),
+      setToken: (token) => set({ token, isAuthenticated: !!token }),
 
       clearToken: () => {
         localStorage.removeItem('discord_token');
-        set({ token: '' });
+        set({ token: '', isAuthenticated: false });
       },
 
       setLoading: (isLoading) => set({ isLoading }),
@@ -559,6 +557,11 @@ export const useAppStore = create<AppStore>()(
     {
       name: 'app-storage',
       partialize: (state) => ({ token: state.token }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.isAuthenticated = !!state.token;
+        }
+      },
     }
   )
 );
