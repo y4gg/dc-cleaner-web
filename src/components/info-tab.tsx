@@ -27,7 +27,7 @@ export function InfoTab() {
             How do I get my Discord token?
           </AccordionTrigger>
           <AccordionContent>
-            <p className="mb-2">Open Discord in your browser, press F12 to open developer tools, go to the Console tab, and paste this script:</p>
+            <p className="mb-2">Open Discord in your browser, press CTRL SHIFT + I to open developer tools, go to the Console tab, and paste this script:</p>
             <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap break-all">
               {`(window.webpackChunkdiscord_app.push([
   [Symbol()],
@@ -47,6 +47,7 @@ export function InfoTab() {
   window.webpackChunkdiscord_app.pop(),
   token);`}
             </pre>
+            <p className="mb-2">You may need to type allow pasting, and make sure to not copy the '</p>
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
