@@ -53,7 +53,6 @@ function PageTitle() {
     "/servers": "Leave Servers",
     "/mutes": "Mute Servers",
     "/friends": "Remove Friends",
-    "/friend-mutes": "Mute Friends",
     "/dms": "Close DMs",
   };
   

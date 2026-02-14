@@ -39,7 +39,6 @@ type SelectionType =
   | 'friends'
   | 'dms'
   | 'mutes'
-  | 'friendMutes'
   | 'dmMutes';
 
 interface AppStore {
@@ -59,7 +58,6 @@ interface AppStore {
     friends: string[];
     dms: string[];
     mutes: string[];
-    friendMutes: string[];
     dmMutes: string[];
   };
 
@@ -76,7 +74,6 @@ interface AppStore {
     friends: string[];
     dms: string[];
     mutes: string[];
-    friendMutes: string[];
     dmMutes: string[];
   }) => void;
 
@@ -91,12 +88,10 @@ interface AppStore {
   removeFriend: (userId: string) => Promise<boolean>;
   closeDm: (channelId: string) => Promise<boolean>;
   muteServer: (guildId: string) => Promise<boolean>;
-  muteFriend: (userId: string) => Promise<boolean>;
   muteDm: (channelId: string) => Promise<boolean>;
 
   handleDeleteSelected: () => Promise<void>;
   handleMuteSelected: () => Promise<void>;
-  handleMuteFriendsSelected: () => Promise<void>;
   handleMuteDmsSelected: () => Promise<void>;
 }
 
@@ -116,7 +111,6 @@ export const useAppStore = create<AppStore>()(
         friends: [],
         dms: [],
         mutes: [],
-        friendMutes: [],
         dmMutes: [],
       },
 
@@ -389,79 +383,20 @@ export const useAppStore = create<AppStore>()(
         }
       },
 
-      muteFriend: async (userId: string) => {
-        const token = get().token;
-        const userDms = get().userDms;
-        set((state) => ({ loadingItems: [...state.loadingItems, userId] }));
-
-        try {
-          const dmChannel = userDms.find(
-            (dm) => dm.type === 1 && dm.recipients.some((recipient) => recipient.id === userId)
-          );
-
-          if (!dmChannel) {
-            toast.error('No DM channel found for this friend to mute.');
-            return false;
-          }
-
-          const payload = {
-            channel_overrides: [
-              {
-                channel_id: dmChannel.id,
-                muted: true,
-                mute_config: {
-                  selected_time_window: -1,
-                  end_time: null,
-                },
-              },
-            ],
-          };
-
-          const response = await fetch('https://discord.com/api/v9/users/@me/settings', {
-            method: 'PATCH',
-            headers: {
-              Authorization: `${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
-          });
-
-          if (response.ok) {
-            toast.success('Successfully muted friend!');
-            return true;
-          } else {
-            toast.error('Failed to mute friend.');
-            return false;
-          }
-        } catch (error) {
-          console.error('Error muting friend:', error);
-          return false;
-        } finally {
-          set((state) => ({
-            loadingItems: state.loadingItems.filter((id) => id !== userId),
-          }));
-        }
-      },
-
       muteDm: async (channelId: string) => {
         const token = get().token;
         set((state) => ({ loadingItems: [...state.loadingItems, channelId] }));
 
         try {
           const payload = {
-            channel_overrides: [
-              {
-                channel_id: channelId,
+            channel_overrides: {
+              [channelId]: {
                 muted: true,
-                mute_config: {
-                  selected_time_window: -1,
-                  end_time: null,
-                },
               },
-            ],
+            },
           };
 
-          const response = await fetch('https://discord.com/api/v9/users/@me/settings', {
+          const response = await fetch('https://discord.com/api/v9/users/@me/guilds/%40me/settings', {
             method: 'PATCH',
             headers: {
               Authorization: `${token}`,
@@ -535,7 +470,6 @@ export const useAppStore = create<AppStore>()(
             friends: [],
             dms: [],
             mutes: [],
-            friendMutes: [],
             dmMutes: [],
           },
           isLoading: false,
@@ -573,38 +507,6 @@ export const useAppStore = create<AppStore>()(
           isLoading: false,
         }));
         toast.success('Finished muting selected servers.');
-        setTimeout(() => set({ deletionProgress: { deleted: 0, total: 0 } }), 2000);
-      },
-
-      handleMuteFriendsSelected: async () => {
-        const { friendMutes } = get().selectedItems;
-        const totalCount = friendMutes.length;
-
-        if (totalCount === 0) {
-          toast.info('No friends selected for muting.');
-          return;
-        }
-
-        set({ isLoading: true, deletionProgress: { deleted: 0, total: totalCount } });
-        toast.info(`Starting to mute ${totalCount} selected friends...`);
-
-        let mutedCount = 0;
-        const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-        for (const userId of friendMutes) {
-          const success = await get().muteFriend(userId);
-          if (success) {
-            mutedCount++;
-            set({ deletionProgress: { deleted: mutedCount, total: totalCount } });
-          }
-          await delay(1000);
-        }
-
-        set((state) => ({
-          selectedItems: { ...state.selectedItems, friendMutes: [] },
-          isLoading: false,
-        }));
-        toast.success('Finished muting selected friends.');
         setTimeout(() => set({ deletionProgress: { deleted: 0, total: 0 } }), 2000);
       },
 

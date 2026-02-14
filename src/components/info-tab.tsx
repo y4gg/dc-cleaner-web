@@ -24,6 +24,33 @@ export function InfoTab() {
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
             <AccordionTrigger>
+              How do I get my Discord token?
+            </AccordionTrigger>
+            <AccordionContent>
+              <p className="mb-2">Open Discord in your browser, press F12 to open developer tools, go to the Console tab, and paste this script:</p>
+              <pre className="bg-muted p-3 rounded text-xs overflow-x-auto whitespace-pre-wrap break-all">
+{`(window.webpackChunkdiscord_app.push([
+  [Symbol()],
+  {},
+  (o) => {
+    for (let e of Object.values(o.c))
+      try {
+        if (!e.exports || e.exports === window) continue;
+        e.exports?.getToken && (token = e.exports.getToken());
+        for (let o in e.exports)
+          e.exports?.[o]?.getToken &&
+            "IntlMessagesProxy" !== e.exports[o][Symbol.toStringTag] &&
+            (token = e.exports[o].getToken());
+      } catch {}
+  },
+]),
+  window.webpackChunkdiscord_app.pop(),
+  token);`}
+              </pre>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="item-2">
+            <AccordionTrigger>
               How do you ensure the data is safe?
             </AccordionTrigger>
             <AccordionContent>
@@ -31,9 +58,7 @@ export function InfoTab() {
               tools. The data is never sent to any servers not by discord.
             </AccordionContent>
           </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
+          <AccordionItem value="item-3">
             <AccordionTrigger>Is this open source?</AccordionTrigger>
             <AccordionContent>
               Yes! You can find the source code on <Link href="https://github.com/y4gg/dc-cleaner-web">
@@ -42,9 +67,7 @@ export function InfoTab() {
               .
             </AccordionContent>
           </AccordionItem>
-        </Accordion>
-        <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
+          <AccordionItem value="item-4">
             <AccordionTrigger>Can I support the creator?</AccordionTrigger>
             <AccordionContent>
               Yes! Please considor leaving a star on the GitHub repo. Also,

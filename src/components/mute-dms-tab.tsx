@@ -36,7 +36,6 @@ interface MuteDmsTabProps {
     friends: string[];
     dms: string[];
     mutes: string[];
-    friendMutes: string[];
     dmMutes: string[];
   };
   handleSelectItem: (id: string, type: "dmMutes") => void;

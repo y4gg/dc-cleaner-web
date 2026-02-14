@@ -55,19 +55,12 @@ export function AppNav() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild isActive={pathname === "/friend-mutes"}>
-              <Link href="/friend-mutes">
-                <span>Mute</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
 
       <SidebarGroup>
         <SidebarGroupLabel>
-          DMs
+          Conversations (DMs)
           {userDms.length > 0 && <span className="ml-auto opacity-60">{userDms.length}</span>}
         </SidebarGroupLabel>
         <SidebarMenu>
