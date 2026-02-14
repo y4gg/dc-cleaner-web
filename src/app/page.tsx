@@ -20,6 +20,7 @@ export default function Page() {
   const fetchUserData = useAppStore((state) => state.fetchUserData);
 
   const handleTokenSave = async () => {
+
     if (!token.trim()) {
       toast.error("Please enter a Discord token");
       return;
