@@ -86,16 +86,16 @@ export function MuteDmsTab({
   };
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle>Mute DMs</CardTitle>
         <CardDescription>
           Mute notifications from DM channels. This includes both direct messages and group DMs.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {userDms.length > 0 ? (
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 h-full overflow-y-auto">
             {userDms.map((dm: Channel) => {
               const isGroupDm = dm.type === 3;
               const groupIconUrl = isGroupDm

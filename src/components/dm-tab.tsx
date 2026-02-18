@@ -81,16 +81,16 @@ export function DmTab({
   };
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle>Open DMs</CardTitle>
         <CardDescription>
           Close any open DM channels you no longer need. This includes groups as well.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {userDms.length > 0 ? (
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 h-full overflow-y-auto">
             {userDms.map((dm: Channel) => {
               const isGroupDm = dm.type === 3;
               const groupIconUrl = isGroupDm

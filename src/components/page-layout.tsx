@@ -22,8 +22,8 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <SidebarInset>
         <PageHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4">
-          <div className="w-full max-w-2xl mx-auto">
+        <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">
+          <div className="w-full max-w-2xl mx-auto h-full">
             {children}
           </div>
         </div>

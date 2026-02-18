@@ -68,16 +68,16 @@ export function ServerTab({
   };
 
   return (
-    <Card>
+    <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle>Leave Servers</CardTitle>
         <CardDescription>
           Leave servers you no longer want to be part of.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {userGuilds.length > 0 ? (
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 h-full overflow-y-auto">
             {userGuilds.map((guild) => {
               const iconUrl = getServerIconUrl(guild.id, guild.icon);
               
