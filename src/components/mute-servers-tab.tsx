@@ -78,7 +78,7 @@ export function ServerTab({
       </CardHeader>
       <CardContent className={`${isAuthenticated ? "flex-1 overflow-hidden" : ""}`}>
         {userGuilds.length > 0 ? (
-          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-96"} overflow-y-auto`}>
+          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-192"} overflow-y-auto`}>
             {userGuilds.map((guild) => {
               const iconUrl = getServerIconUrl(guild.id, guild.icon);
               

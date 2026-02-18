@@ -95,7 +95,7 @@ export function MuteDmsTab({
       </CardHeader>
       <CardContent className={`${isAuthenticated ? "flex-1 overflow-hidden" : ""}`}>
         {userDms.length > 0 ? (
-          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-96"} overflow-y-auto`}>
+          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-192"} overflow-y-auto`}>
             {userDms.map((dm: Channel) => {
               const isGroupDm = dm.type === 3;
               const groupIconUrl = isGroupDm

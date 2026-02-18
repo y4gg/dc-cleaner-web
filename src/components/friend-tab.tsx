@@ -82,7 +82,7 @@ export function FriendTab({
       </CardHeader>
       <CardContent className={`${isAuthenticated ? "flex-1 overflow-hidden" : ""}`}>
         {userFriends.length > 0 ? (
-          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-96"} overflow-y-auto`}>
+          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-192"} overflow-y-auto`}>
             {userFriends.map((friend: Relationship) => {
               const avatarUrl = getAvatarUrl(friend.user.id, friend.user.avatar);
               
