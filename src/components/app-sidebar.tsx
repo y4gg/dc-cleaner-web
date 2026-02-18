@@ -18,8 +18,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Link
           href="/"
           className={`px-2 py-4 block rounded-lg transition-colors ${pathname === "/"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground"
-              : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
             }`}
         >
           <div className="flex items-center gap-3">
@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="flex flex-col gap-0.5 leading-none">
               <span className="font-medium">Discord Cleaner</span>
-              <span className="">v0.5.0</span>
+              <span className="">v0.5.1</span>
             </div>
           </div>
         </Link>
