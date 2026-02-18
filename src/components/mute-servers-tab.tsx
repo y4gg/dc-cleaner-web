@@ -69,16 +69,16 @@ export function ServerTab({
   };
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className={`flex flex-col ${isAuthenticated ? "h-full" : ""}`}>
       <CardHeader>
         <CardTitle>Mute Servers</CardTitle>
         <CardDescription>
           Mute servers that frequently spam you. I recommend you just select all.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
+      <CardContent className={`${isAuthenticated ? "flex-1 overflow-hidden" : ""}`}>
         {userGuilds.length > 0 ? (
-          <div className="space-y-2 h-full overflow-y-auto">
+          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-96"} overflow-y-auto`}>
             {userGuilds.map((guild) => {
               const iconUrl = getServerIconUrl(guild.id, guild.icon);
               

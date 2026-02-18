@@ -73,16 +73,16 @@ export function FriendTab({
   };
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className={`flex flex-col ${isAuthenticated ? "h-full" : ""}`}>
       <CardHeader>
         <CardTitle>Your Friends</CardTitle>
         <CardDescription>
           Remove friends you no longer want to keep.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
+      <CardContent className={`${isAuthenticated ? "flex-1 overflow-hidden" : ""}`}>
         {userFriends.length > 0 ? (
-          <div className="space-y-2 h-full overflow-y-auto">
+          <div className={`space-y-2 ${isAuthenticated ? "h-full" : "max-h-96"} overflow-y-auto`}>
             {userFriends.map((friend: Relationship) => {
               const avatarUrl = getAvatarUrl(friend.user.id, friend.user.avatar);
               

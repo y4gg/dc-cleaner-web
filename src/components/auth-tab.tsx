@@ -34,7 +34,7 @@ export function AuthTab({
   isRefetching = false,
 }: AuthTabProps) {
   return (
-    <Card className="flex flex-col h-full">
+    <Card className={`flex flex-col ${isAuthenticated ? "h-full" : ""}`}>
       <CardHeader>
         <CardTitle>Discord Token</CardTitle>
         <CardDescription>

@@ -14,8 +14,8 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { Github } from "lucide-react";
 
-export function InfoTab() {
-  return <Card className="flex flex-col h-full">
+export function InfoTab({ isAuthenticated = false }: { isAuthenticated?: boolean }) {
+  return <Card className={`flex flex-col ${isAuthenticated ? "h-full" : ""}`}>
     <CardHeader>
       <CardTitle>Questions and Answers</CardTitle>
       <CardDescription>

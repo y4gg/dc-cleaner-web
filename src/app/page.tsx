@@ -63,7 +63,7 @@ export default function Page() {
           onRefetch={handleRefetch}
           isRefetching={isRefetching}
         />
-        <InfoTab />
+        <InfoTab isAuthenticated={isAuthenticated} />
       </div>
     </PageLayout>
   );

@@ -11,6 +11,7 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
   const token = useAppStore((state) => state.token);
   const fetchUserData = useAppStore((state) => state.fetchUserData);
   const userGuilds = useAppStore((state) => state.userGuilds);
+  const isAuthenticated = !!token;
 
   useEffect(() => {
     if (token && userGuilds.length === 0) {
@@ -22,8 +23,8 @@ export function PageLayout({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <SidebarInset>
         <PageHeader />
-        <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">
-          <div className="w-full max-w-2xl mx-auto h-full">
+        <div className={`flex flex-1 flex-col gap-4 p-4 ${isAuthenticated ? "overflow-hidden" : ""}`}>
+          <div className={`w-full max-w-2xl mx-auto ${isAuthenticated ? "h-full" : ""}`}>
             {children}
           </div>
         </div>
