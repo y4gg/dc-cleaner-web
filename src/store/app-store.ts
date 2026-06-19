@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { toast } from 'sonner';
+import { normalizeDiscordToken } from '@/lib/discord-token';
 
 interface Guild {
   id: string;
@@ -116,7 +117,10 @@ export const useAppStore = create<AppStore>()(
 
       isAuthenticated: false,
 
-      setToken: (token) => set({ token, isAuthenticated: !!token }),
+      setToken: (token) => {
+        const normalizedToken = normalizeDiscordToken(token);
+        set({ token: normalizedToken, isAuthenticated: !!normalizedToken });
+      },
 
       clearToken: () => {
         localStorage.removeItem('discord_token');
@@ -547,6 +551,7 @@ export const useAppStore = create<AppStore>()(
       partialize: (state) => ({ token: state.token }),
       onRehydrateStorage: () => (state) => {
         if (state) {
+          state.token = normalizeDiscordToken(state.token);
           state.isAuthenticated = !!state.token;
         }
       },

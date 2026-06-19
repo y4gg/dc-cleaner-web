@@ -6,6 +6,7 @@ import { PageLayout } from "@/components/page-layout";
 import { AuthTab } from "@/components/auth-tab";
 import { InfoTab } from "@/components/info-tab";
 import { useAppStore } from "@/store/app-store";
+import { normalizeDiscordToken } from "@/lib/discord-token";
 
 export default function Page() {
   const router = useRouter();
@@ -20,10 +21,15 @@ export default function Page() {
   const fetchUserData = useAppStore((state) => state.fetchUserData);
 
   const handleTokenSave = async () => {
+    const normalizedToken = normalizeDiscordToken(token);
 
-    if (!token.trim()) {
+    if (!normalizedToken) {
       toast.error("Please enter a Discord token");
       return;
+    }
+
+    if (normalizedToken !== token) {
+      setToken(normalizedToken);
     }
 
     setLoading(true);
@@ -31,7 +37,7 @@ export default function Page() {
     try {
       const response = await fetch("https://discord.com/api/users/@me", {
         headers: {
-          Authorization: `${token}`,
+          Authorization: normalizedToken,
         },
       });
 

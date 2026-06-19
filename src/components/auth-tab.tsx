@@ -38,8 +38,8 @@ export function AuthTab({
       <CardHeader>
         <CardTitle>Discord Token</CardTitle>
         <CardDescription>
-          Enter your Discord token to clean up your account. This runs completely
-          in your browser - your token never leaves your browser.
+          Enter your Discord token to clean up your account. This runs
+          completely in your browser; your token never leaves your browser.
         </CardDescription>
       </CardHeader>
       {!isAuthenticated && (
@@ -58,7 +58,11 @@ export function AuthTab({
       )}
       <CardFooter className="flex gap-2">
         {!isAuthenticated ? (
-          <Button onClick={handleTokenSave} disabled={isLoading} className="text-foreground">
+          <Button
+            onClick={handleTokenSave}
+            disabled={isLoading}
+            className="text-foreground"
+          >
             {isLoading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
@@ -70,8 +74,8 @@ export function AuthTab({
               Logout
             </Button>
             {onRefetch && (
-              <Button 
-                onClick={onRefetch} 
+              <Button
+                onClick={onRefetch}
                 variant="outline"
                 disabled={isRefetching}
                 className="text-foreground"
