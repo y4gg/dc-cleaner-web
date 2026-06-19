@@ -17,10 +17,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <Link
           href="/"
-          className={`px-2 py-4 block rounded-lg transition-colors ${pathname === "/"
-            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-            }`}
+          className={`px-2 py-4 block rounded-lg transition-colors ${
+            pathname === "/"
+              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+              : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-9 items-center justify-center rounded-lg">
@@ -30,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="flex flex-col gap-0.5 leading-none">
               <span className="font-medium">Discord Cleaner</span>
-              <span className="">v0.5.1</span>
+              <span className="">v0.5.2</span>
             </div>
           </div>
         </Link>
