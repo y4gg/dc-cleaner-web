@@ -1,0 +1,4 @@
+interface:
+  display_name: "y4 Web Design System"
+  short_description: "Apply y4 glass, reflection, and shadow language to web UI"
+  default_prompt: "Apply the y4 Web Design System to this website while preserving its product identity and behavior."
