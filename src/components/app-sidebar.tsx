@@ -9,7 +9,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { ShieldCheck } from "lucide-react";
+import { LogIn } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -29,23 +29,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="dc-brand-copy">
               <span className="dc-brand-name">Discord Cleaner</span>
-              <span className="dc-brand-meta">v0.5.2 <i aria-hidden="true" /> browser tool</span>
+              <span className="dc-brand-meta">v0.5.2 <i aria-hidden="true" /> local only</span>
             </div>
           </div>
         </Link>
       </SidebarHeader>
       <SidebarContent className="dc-sidebar-content">
-        <div className="dc-sidebar-kicker">Workspace</div>
         <AppNav />
       </SidebarContent>
       <SidebarFooter className="dc-sidebar-footer">
-        <div className="dc-safety-note">
-          <ShieldCheck aria-hidden="true" />
-          <div>
-            <strong>Runs locally</strong>
-            <span>Your token stays in the browser.</span>
-          </div>
-        </div>
+        <Link href="/" className={`dc-login-link ${pathname === "/" ? "is-active" : ""}`}>
+          <LogIn aria-hidden="true" />
+          <span>Login</span>
+        </Link>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
