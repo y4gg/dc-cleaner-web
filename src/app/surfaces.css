@@ -63,12 +63,12 @@ body {
 }
 
 .dc-sidebar-header {
-  padding: 0.75rem 1rem 0;
+  padding: 0.5rem 1rem 0;
 }
 
 .dc-brand-link {
   display: block;
-  min-height: 80px;
+  min-height: 68px;
   border-bottom: 1px solid var(--dc-edge);
   color: var(--foreground);
   transition: color 160ms ease, border-color 160ms ease;
@@ -84,8 +84,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  min-height: 80px;
-  padding: 0.65rem 0.25rem;
+  min-height: 68px;
+  padding: 0.4rem 0.25rem;
 }
 
 .dc-brand-mark {
@@ -131,22 +131,22 @@ body {
 }
 
 .dc-sidebar-content {
-  gap: 0.25rem;
-  padding: 0.85rem 1rem;
+  gap: 0;
+  padding: 0.35rem 1rem;
 }
 
 .dc-sidebar [data-slot="sidebar-group"] {
-  padding: 0.4rem 0;
+  padding: 0.2rem 0;
 }
 
 .dc-sidebar [data-slot="sidebar-group"] + [data-slot="sidebar-group"] {
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
   border-top: 1px solid color-mix(in srgb, var(--dc-edge) 68%, transparent);
-  padding-top: 0.7rem;
+  padding-top: 0.45rem;
 }
 
 .dc-sidebar [data-slot="sidebar-group-label"] {
-  height: 1.7rem;
+  height: 1.45rem;
   padding-inline: 0.55rem;
   color: var(--muted-foreground);
   font: 0.61rem/1 var(--font-mono);
@@ -164,7 +164,7 @@ body {
 }
 
 .dc-sidebar [data-slot="sidebar-menu"] {
-  gap: 0.3rem;
+  gap: 0.15rem;
 }
 
 .dc-sidebar [data-slot="sidebar-menu-button"] {
@@ -192,7 +192,7 @@ body {
 }
 
 .dc-sidebar-footer {
-  padding: 0.75rem 1rem 1rem;
+  padding: 0.5rem 1rem 0.65rem;
 }
 
 .dc-login-link {
