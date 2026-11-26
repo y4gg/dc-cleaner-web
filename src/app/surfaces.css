@@ -1,0 +1,216 @@
+/* y4 material treatment for the Discord Cleaner workspace. */
+:root {
+  --dc-canvas: #f3f4f7;
+  --dc-panel-top: #ffffff;
+  --dc-panel-base: #e8ebf2;
+  --dc-edge: #cbd0dd;
+  --dc-rim: #ffffff;
+  --dc-reflection: #ffffffb8;
+  --dc-inset: #ffffffa8;
+  --dc-shadow-near: #20283b24;
+  --dc-shadow-far: #252f472d;
+  --dc-metal-light: #ffffff;
+  --dc-metal-base: #9ea8bc;
+  --dc-metal-ink: #242a38;
+  --dc-purple: #7770e8;
+  --dc-purple-hover: #625bd1;
+  --dc-purple-soft: #ecebff;
+  --dc-purple-ink: #4039b7;
+  --dc-danger-soft: #fdecef;
+  --dc-scrim: #15182766;
+}
+
+.dark {
+  --dc-canvas: #12131a;
+  --dc-panel-top: #292d3a;
+  --dc-panel-base: #1b1d27;
+  --dc-edge: #3c4253;
+  --dc-rim: #ffffff38;
+  --dc-reflection: #d4dbff14;
+  --dc-inset: #ffffff0f;
+  --dc-shadow-near: #03040a8e;
+  --dc-shadow-far: #03040ab8;
+  --dc-metal-light: #f5f7fc;
+  --dc-metal-base: #909bae;
+  --dc-purple: #a7a3ff;
+  --dc-purple-hover: #c0bdff;
+  --dc-purple-soft: #302e4b;
+  --dc-purple-ink: #d1ceff;
+  --dc-danger-soft: #422831;
+  --dc-scrim: #080a12b5;
+}
+
+:root {
+  --dc-glass: radial-gradient(ellipse at 14% 0%, var(--dc-reflection), transparent 68%), linear-gradient(150deg, var(--dc-panel-top), var(--dc-panel-base) 78%);
+  --dc-panel-shadow: inset 0 1px var(--dc-inset), 0 2px 5px var(--dc-shadow-near), 0 17px 32px -18px var(--dc-shadow-far);
+  --dc-control-shadow: inset 0 1px var(--dc-inset), 0 2px 4px var(--dc-shadow-near);
+  --dc-metal: radial-gradient(ellipse at 24% 0%, #ffffffb0, transparent 65%), linear-gradient(155deg, var(--dc-metal-light), var(--dc-metal-base));
+}
+
+body {
+  background: var(--dc-canvas);
+  background-image: radial-gradient(ellipse 70rem 38rem at 68% 0%, color-mix(in srgb, var(--dc-purple) 16%, transparent), transparent 68%);
+}
+
+[data-slot="sidebar-wrapper"] {
+  background: transparent;
+}
+
+[data-slot="sidebar"] {
+  background: var(--dc-glass);
+  border-color: var(--dc-edge);
+  box-shadow: var(--dc-panel-shadow);
+}
+
+[data-slot="sidebar-header"] > a {
+  min-height: 64px;
+  border: 1px solid var(--dc-edge);
+  border-top-color: var(--dc-rim);
+  background: var(--dc-glass);
+  box-shadow: var(--dc-control-shadow);
+}
+
+[data-slot="sidebar-header"] > a > div > div:first-child {
+  border: 1px solid #ffffff85;
+  background: var(--dc-metal);
+  box-shadow: inset 0 1px #ffffffb5, inset 0 -2px 4px #27324f36, 0 3px 5px var(--dc-shadow-near);
+  color: var(--dc-metal-ink);
+}
+
+[data-slot="sidebar-menu-button"] {
+  min-height: 44px;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, color 160ms ease;
+}
+
+[data-slot="sidebar-menu-button"]:hover,
+[data-slot="sidebar-menu-button"][data-active="true"] {
+  border-color: var(--dc-edge);
+  background: var(--dc-purple-soft);
+  color: var(--dc-purple-ink);
+  box-shadow: var(--dc-control-shadow);
+}
+
+[data-slot="sidebar-group-label"] {
+  color: var(--muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+[data-slot="sidebar-inset"] {
+  background: transparent;
+}
+
+[data-slot="sidebar-inset"] > header {
+  min-height: 64px;
+  border-color: var(--dc-edge);
+  background: color-mix(in srgb, var(--dc-panel-base) 72%, transparent);
+  box-shadow: inset 0 -1px var(--dc-rim), 0 6px 18px var(--dc-shadow-near);
+  backdrop-filter: blur(16px);
+}
+
+[data-slot="card"] {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--dc-edge);
+  border-top-color: var(--dc-rim);
+  border-radius: 1rem;
+  background: var(--dc-glass);
+  box-shadow: var(--dc-panel-shadow);
+}
+
+[data-slot="card"]::before {
+  position: absolute;
+  inset: 0 10% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--dc-rim), transparent);
+  content: "";
+  pointer-events: none;
+}
+
+[data-slot="card-header"],
+[data-slot="card-content"],
+[data-slot="card-footer"] {
+  position: relative;
+  z-index: 1;
+}
+
+[data-slot="button"] {
+  min-height: 44px;
+  border-color: var(--dc-edge);
+  box-shadow: var(--dc-control-shadow);
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+[data-slot="button"]:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: var(--dc-purple);
+  box-shadow: var(--dc-control-shadow), 0 7px 14px var(--dc-shadow-near);
+}
+
+[data-slot="button"][data-variant="default"],
+[data-slot="button"]:not([data-variant]) {
+  border-color: color-mix(in srgb, var(--dc-purple) 70%, var(--foreground));
+  background: linear-gradient(176deg, #ffffff28, transparent 65%), var(--dc-purple);
+  color: var(--primary-foreground);
+}
+
+[data-slot="button"][data-variant="outline"] {
+  background: var(--dc-glass);
+}
+
+[data-slot="button"][data-variant="destructive"] {
+  background: var(--dc-danger-soft);
+  color: var(--destructive);
+}
+
+[data-slot="input"] {
+  min-height: 44px;
+  border-color: var(--dc-edge);
+  background: color-mix(in srgb, var(--dc-canvas) 70%, transparent);
+  box-shadow: var(--dc-control-shadow);
+}
+
+[data-slot="input"]:focus-visible {
+  border-color: var(--dc-purple);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dc-purple) 28%, transparent), var(--dc-control-shadow);
+}
+
+[data-slot="accordion-item"] {
+  border-color: color-mix(in srgb, var(--dc-edge) 70%, transparent);
+}
+
+[data-slot="accordion-trigger"] {
+  min-height: 44px;
+  border-radius: 0.65rem;
+}
+
+[data-slot="accordion-trigger"]:hover {
+  background: var(--dc-purple-soft);
+  color: var(--dc-purple-ink);
+  text-decoration: none;
+}
+
+[data-slot="sheet-content"] {
+  border-color: var(--dc-edge);
+  background: var(--dc-glass);
+  box-shadow: var(--dc-panel-shadow), 0 26px 65px -18px var(--dc-shadow-far);
+}
+
+[data-slot="sheet-overlay"] {
+  background: var(--dc-scrim);
+  backdrop-filter: blur(5px);
+}
+
+pre {
+  border: 1px solid var(--dc-edge);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--dc-canvas) 74%, transparent);
+  box-shadow: inset 0 2px 5px var(--dc-shadow-near);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="button"] {
+    transition-duration: 0ms;
+  }
+}
